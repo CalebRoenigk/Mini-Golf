@@ -1,0 +1,16 @@
+{
+    "name": "Course",
+    "rootNamespace": "",
+    "references": [
+        "GUID:0c7f912d75f9041689030ea31aaeb943"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
