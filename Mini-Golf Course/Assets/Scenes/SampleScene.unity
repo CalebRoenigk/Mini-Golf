@@ -471,10 +471,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2772a9eebcaea4524b9205d27416b2de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lineRenderer: {fileID: 1008222329}
-  cameraParent: {fileID: 898992286}
-  rigidbody: {fileID: 1008222328}
-  trajectoryRenderer: {fileID: 1268959655}
 --- !u!65 &1008222324
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -835,12 +831,113 @@ MonoBehaviour:
   landmarkChance: 0.0625
   decoChance: 0.25
   playfield:
-    start: {x: 0, y: 0, z: 0}
-    end: {x: 0, y: 0, z: 0}
-    spawn: {x: 0, y: 0, z: 0}
-    field: []
-    deco: []
-    modifierSettings:
+    seed: 0
+    level: 0
+    fieldSettings:
+      playfield:
+        seed: 0
+        level: 0
+        fieldSettings:
+          playfield:
+            seed: 0
+            level: 0
+            fieldSettings:
+              playfield:
+                seed: 0
+                level: 0
+                fieldSettings:
+                  playfield:
+                    seed: 0
+                    level: 0
+                    fieldSettings:
+                      playfield:
+                        seed: 0
+                        level: 0
+                        bounds:
+                          m_Position: {x: 0, y: 0, z: 0}
+                          m_Size: {x: 0, y: 0, z: 0}
+                        start: {x: 0, y: 0, z: 0}
+                        end: {x: 0, y: 0, z: 0}
+                      terrainScale: 0
+                      terrainHeight: 0
+                      terrainMargin: 0
+                      decoChance: 0
+                      obstacleChance: 0
+                      rockChance: 0
+                      waterChance: 0
+                      sandChance: 0
+                      grassChance: 0
+                      landmarkChance: 0
+                      archChance: 0
+                      windmillChance: 0
+                      hillChance: 0
+                    bounds:
+                      m_Position: {x: 0, y: 0, z: 0}
+                      m_Size: {x: 0, y: 0, z: 0}
+                    start: {x: 0, y: 0, z: 0}
+                    end: {x: 0, y: 0, z: 0}
+                    deco: []
+                  terrainScale: 0
+                  terrainHeight: 0
+                  terrainMargin: 0
+                  decoChance: 0
+                  obstacleChance: 0
+                  rockChance: 0
+                  waterChance: 0
+                  sandChance: 0
+                  grassChance: 0
+                  landmarkChance: 0
+                  archChance: 0
+                  windmillChance: 0
+                  hillChance: 0
+                bounds:
+                  m_Position: {x: 0, y: 0, z: 0}
+                  m_Size: {x: 0, y: 0, z: 0}
+                start: {x: 0, y: 0, z: 0}
+                end: {x: 0, y: 0, z: 0}
+                deco: []
+              terrainScale: 0
+              terrainHeight: 0
+              terrainMargin: 0
+              decoChance: 0
+              obstacleChance: 0
+              rockChance: 0
+              waterChance: 0
+              sandChance: 0
+              grassChance: 0
+              landmarkChance: 0
+              archChance: 0
+              windmillChance: 0
+              hillChance: 0
+            bounds:
+              m_Position: {x: 0, y: 0, z: 0}
+              m_Size: {x: 0, y: 0, z: 0}
+            start: {x: 0, y: 0, z: 0}
+            end: {x: 0, y: 0, z: 0}
+            deco: []
+          terrainScale: 0
+          terrainHeight: 0
+          terrainMargin: 0
+          decoChance: 0
+          obstacleChance: 0
+          rockChance: 0
+          waterChance: 0
+          sandChance: 0
+          grassChance: 0
+          landmarkChance: 0
+          archChance: 0
+          windmillChance: 0
+          hillChance: 0
+        bounds:
+          m_Position: {x: 0, y: 0, z: 0}
+          m_Size: {x: 0, y: 0, z: 0}
+        start: {x: 0, y: 0, z: 0}
+        end: {x: 0, y: 0, z: 0}
+        deco: []
+      terrainScale: 0
+      terrainHeight: 0
+      terrainMargin: 0
+      decoChance: 0
       obstacleChance: 0
       rockChance: 0
       waterChance: 0
@@ -850,12 +947,21 @@ MonoBehaviour:
       archChance: 0
       windmillChance: 0
       hillChance: 0
-      decoChance: 0
+    bounds:
+      m_Position: {x: 0, y: 0, z: 0}
+      m_Size: {x: 0, y: 0, z: 0}
+    start: {x: 0, y: 0, z: 0}
+    end: {x: 0, y: 0, z: 0}
+    deco: []
   gameTilePrefab: {fileID: 1220470970535892180, guid: 452c0eca9edde4ce98842e45453a756e,
     type: 3}
   decoPrefabs:
   - {fileID: 523061781484770858, guid: 1305beea058a94c1b8499bf0e2d04f21, type: 3}
-  ball: {fileID: 1008222323}
+  terrainMeshes:
+  - {fileID: 195369175416034054, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
+  - {fileID: 5797273022398963634, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
+  - {fileID: -7420860524048880844, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
+  - {fileID: -8104979325612622895, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
 --- !u!4 &1384096886
 Transform:
   m_ObjectHideFlags: 0

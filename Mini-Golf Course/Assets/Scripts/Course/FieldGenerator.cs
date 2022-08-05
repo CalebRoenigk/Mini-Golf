@@ -33,6 +33,9 @@ namespace Course
         [SerializeField] private List<GameObject> decoPrefabs = new List<GameObject>();
         private List<GameObject> gameTiles = new List<GameObject>();
         // [SerializeField] private Ball ball;
+        
+        [Header("Gizmos")]
+        [SerializeField] private List<Mesh> terrainMeshes = new List<Mesh>();
 
         void Start()
         {
@@ -102,14 +105,22 @@ namespace Course
                 Gizmos.DrawWireCube(GridToWorld(new Vector3Int((int)Mathf.Floor(playfield.bounds.center.x), (int)Mathf.Floor(playfield.bounds.center.y), (int)Mathf.Floor(playfield.bounds.center.z))), GridToWorld(playfield.bounds.size));
                 
                 // Draw terrain
-                foreach (KeyValuePair<Vector3Int, TerrainType> terrain in playfield.terrain)
+                foreach (TerrainTile terrain in playfield.terrain)
                 {
                     Gizmos.color = Color.magenta;
-                    Gizmos.DrawWireCube(GridToWorld(terrain.Key), new Vector3(1f, 0.5f, 1f));
+                    switch (terrain.terrainType)
+                    {
+                        case TerrainType.None:
+                            break;
+                        default:
+                            Quaternion quaternion = new Quaternion();
+                            quaternion.eulerAngles = new Vector3(-90f, terrain.rotation, 0f);
+                            Gizmos.DrawMesh(terrainMeshes[((int)terrain.terrainType) - 1], GridToWorld(terrain.position), quaternion, Vector3.one);
+                            break;
+                    }
+                    
+                    Gizmos.DrawWireCube(GridToWorld(terrain.position), new Vector3(1f, 0.5f, 1f));
                 }
-                
-                Gizmos.color = Color.blue;
-                Gizmos.DrawCube(GridToWorld(new Vector3Int(0,0,-2)), new Vector3(1f, 0.5f, 1f));
             }
         }
         

@@ -21,7 +21,7 @@ namespace Course.Field
         public Vector3Int end;
         
         // Playfield Tiles
-        public Dictionary<Vector3Int, TerrainType> terrain = new Dictionary<Vector3Int, TerrainType>();
+        public List<TerrainTile> terrain = new List<TerrainTile>();
 
         // OLD
         
@@ -343,6 +343,7 @@ namespace Course.Field
             
             // Expand the bounds to fit the terrain
             bounds.zMin -= fieldSettings.terrainHeight;
+            bounds.zMax += 1;
             bounds.xMin -= fieldSettings.terrainMargin;
             bounds.xMax += fieldSettings.terrainMargin;
             bounds.yMin -= fieldSettings.terrainMargin;
@@ -382,7 +383,8 @@ namespace Course.Field
                 // If there is not a tile above, this terrain exists
                 if (!neighbors[1, 1, 2])
                 {
-                    terrain.Add(terrainPosition, TerrainType.Flat);
+                    TerrainTile terrainTile = new TerrainTile(terrainPosition, GetTerrainType(neighbors), GetTerrainRotation(neighbors));
+                    terrain.Add(terrainTile);
                 }
             }
         }
@@ -405,7 +407,7 @@ namespace Course.Field
                         // First check if the neighbor position is out of bounds
                         if (!bounds.Contains(neighborPosition))
                         {
-                            neighbors[x, y, z] = false;
+                            neighbors[x, y, z] = z == 1;
                             continue;
                         }
                         else
@@ -418,6 +420,140 @@ namespace Course.Field
             }
 
             return neighbors;
+        }
+        
+        // Returns the terrain type given the neighbors
+        private TerrainType GetTerrainType(bool[,,] neighbors)
+        {
+            // Get the counts of neighbors by Z slice
+            int[] neighborCounts = GetNeighborCountByZSlice(neighbors);
+            
+            // Get standard flat pieces
+            if (neighborCounts[2] == 0)
+            {
+                // Piece is flat
+                return TerrainType.Flat;
+            }
+            
+            // Get the slopes
+            // Slopes only appear when direct top neighbors have neighbors on both sides
+            if (IsTerrainSlope(neighbors))
+            {
+                return TerrainType.Slope;
+            }
+            
+            return TerrainType.None;
+        }
+        
+        // Returns a bool denoting if the terrain is a slope based on its neighbors
+        private bool IsTerrainSlope(bool[,,] neighbors)
+        {
+            if (neighbors[0, 1, 2])
+            {
+                // X-
+                if (neighbors[0, 0, 2] && neighbors[0, 2, 2])
+                {
+                    // X- Slope
+                    return true;
+                }
+            }
+            if (neighbors[2, 1, 2])
+            {
+                // X+
+                if (neighbors[2, 0, 2] && neighbors[2, 2, 2])
+                {
+                    // X+ Slope
+                    return true;
+                }
+            }
+            if (neighbors[1, 0, 2])
+            {
+                // Y-
+                if (neighbors[0, 0, 2] && neighbors[2, 0, 2])
+                {
+                    // Y- Slope
+                    return true;
+                }
+            }
+            if (neighbors[1, 2, 2])
+            {
+                // Y+
+                if (neighbors[0, 2, 2] && neighbors[2, 2, 2])
+                {
+                    // Y+ Slope
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        
+        // Returns the rotation of the terrain given the neighbors
+        private int GetTerrainRotation(bool[,,] neighbors)
+        {
+            // Slope rotation
+            if (IsTerrainSlope(neighbors))
+            {
+                if (neighbors[0, 1, 2])
+                {
+                    // X-
+                    if (neighbors[0, 0, 2] && neighbors[0, 2, 2])
+                    {
+                        // X- Slope
+                        return 0;
+                    }
+                }
+                if (neighbors[2, 1, 2])
+                {
+                    // X+
+                    if (neighbors[2, 0, 2] && neighbors[2, 2, 2])
+                    {
+                        // X+ Slope
+                        return 180;
+                    }
+                }
+                if (neighbors[1, 0, 2])
+                {
+                    // Y-
+                    if (neighbors[0, 0, 2] && neighbors[2, 0, 2])
+                    {
+                        // Y- Slope
+                        return -90;
+                    }
+                }
+                if (neighbors[1, 2, 2])
+                {
+                    // Y+
+                    if (neighbors[0, 2, 2] && neighbors[2, 2, 2])
+                    {
+                        // Y+ Slope
+                        return 90;
+                    }
+                }
+            }
+            
+            // All other rotations
+            return 0;
+        }
+        
+        // Returns a count of neighbors at each given slice of the neighbors array (by z)
+        private int[] GetNeighborCountByZSlice(bool[,,] neighbors)
+        {
+            int[] counts = new int[3];
+            
+            // Iterate over the neighbors and store their counts
+            for (int x = 0; x < 3; x++)
+            {
+                for (int y = 0; y < 3; y++)
+                {
+                    for (int z = 0; z < 3; z++)
+                    {
+                        counts[z] += neighbors[x, y, z] ? 1 : 0;
+                    }
+                }
+            }
+
+            return counts;
         }
 
         // // OLD
