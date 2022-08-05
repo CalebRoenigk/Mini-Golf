@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEditor;
 // using Dice;
 using Course.Field;
 
@@ -111,16 +112,103 @@ namespace Course
                     switch (terrain.terrainType)
                     {
                         case TerrainType.None:
+                            Gizmos.color = Color.magenta;
                             Gizmos.DrawWireCube(GridToWorld(terrain.position), new Vector3(1f, 0.5f, 1f));
+                            break;
+                        case TerrainType.CornerInverse:
+                            Quaternion q2 = new Quaternion();
+                            q2.eulerAngles = new Vector3(-90f, terrain.rotation, 0f);
+                            Gizmos.color = Color.cyan;
+                            Gizmos.DrawMesh(terrainMeshes[((int)terrain.terrainType) - 1], GridToWorld(terrain.position), q2, Vector3.one);
+                            Gizmos.color = Color.blue;
+                            Gizmos.DrawWireMesh(terrainMeshes[((int)terrain.terrainType) - 1], GridToWorld(terrain.position), q2, Vector3.one);
                             break;
                         default:
                             Quaternion quaternion = new Quaternion();
                             quaternion.eulerAngles = new Vector3(-90f, terrain.rotation, 0f);
+                            Gizmos.color = Color.magenta;
                             Gizmos.DrawMesh(terrainMeshes[((int)terrain.terrainType) - 1], GridToWorld(terrain.position), quaternion, Vector3.one);
+                            Gizmos.color = Color.red;
+                            Gizmos.DrawWireMesh(terrainMeshes[((int)terrain.terrainType) - 1], GridToWorld(terrain.position), quaternion, Vector3.one);
                             break;
+                    }
+
+                    Handles.color = Color.blue;
+
+                    bool[,,] neighbors = GetTerrainNeighbors(terrain.position);
+                    int[] neighborCount = GetNeighborCountByZSlice(neighbors);
+                    Handles.Label(GridToWorld(terrain.position), new Vector3Int(neighborCount[0], neighborCount[1], neighborCount[2]).ToString());
+                }
+            }
+        }
+        
+        // Returns a cube array of direct neighbors for the given terrain tile and flags list
+        private bool[,,] GetTerrainNeighbors(Vector3Int terrainPosition)
+        {
+            bool[,,] neighbors = new bool[3, 3, 3];
+
+            // Check all neighboring positions for terrain
+            for (int x = 0; x < 3; x++)
+            {
+                for (int y = 0; y < 3; y++)
+                {
+                    for (int z = 0; z < 3; z++)
+                    {
+                        Vector3Int offsetPosition = new Vector3Int(-1 + x, -1 + y, -1 + z);
+                        Vector3Int neighborPosition = terrainPosition + offsetPosition;
+                        
+                        // First check if the neighbor position is out of bounds
+                        if (!playfield.bounds.Contains(neighborPosition))
+                        {
+                            neighbors[x, y, z] = z == 1;
+                            // Add true if the z is 2 and the next neighbor exists in the list
+                            if (z == 2)
+                            {
+                                List<Vector3Int> neighboringOffsets = new List<Vector3Int>() { Vector3Int.down, Vector3Int.left, Vector3Int.right, Vector3Int.up };
+                                bool neighborFlag = false;
+                                foreach (Vector3Int neighboringOffset in neighboringOffsets)
+                                {
+                                    Vector3Int neighborCheck = neighboringOffset + neighborPosition;
+                                    if (!neighborFlag)
+                                    {
+                                        neighborFlag = playfield.terrain.FindIndex(t => t.position == neighborPosition) != -1;
+                                    }
+                                }
+                                
+                                neighbors[x, y, z] = neighborFlag;
+                            }
+                            continue;
+                        }
+                        else
+                        {
+                            // Is the neighbor position within the terrain flags
+                            neighbors[x, y, z] = playfield.terrain.FindIndex(t => t.position == neighborPosition) != -1;
+                        }
                     }
                 }
             }
+
+            return neighbors;
+        }
+        
+        // Returns a count of neighbors at each given slice of the neighbors array (by z)
+        private int[] GetNeighborCountByZSlice(bool[,,] neighbors)
+        {
+            int[] counts = new int[3];
+            
+            // Iterate over the neighbors and store their counts
+            for (int x = 0; x < 3; x++)
+            {
+                for (int y = 0; y < 3; y++)
+                {
+                    for (int z = 0; z < 3; z++)
+                    {
+                        counts[z] += neighbors[x, y, z] ? 1 : 0;
+                    }
+                }
+            }
+
+            return counts;
         }
         
         // Generates and Instantiates the field

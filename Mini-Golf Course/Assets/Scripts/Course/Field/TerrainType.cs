@@ -6,6 +6,7 @@ namespace Course.Field
         Flat,
         Corner,
         CornerInverse,
-        Slope
+        Slope,
+        Elevated
     }
 }

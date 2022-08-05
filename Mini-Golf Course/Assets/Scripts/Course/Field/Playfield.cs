@@ -386,6 +386,12 @@ namespace Course.Field
                     // Get the counts of neighbors by Z slice
                     int[] neighborCounts = GetNeighborCountByZSlice(neighbors);
                     TerrainTile terrainTile = new TerrainTile(terrainPosition, GetTerrainType(neighbors, neighborCounts), GetTerrainRotation(neighbors, neighborCounts));
+                    if (terrainTile.terrainType == TerrainType.Elevated)
+                    {
+                        terrainTile.position += Vector3Int.forward;
+                        terrainTile.terrainType = TerrainType.Flat;
+                    }
+                    
                     terrain.Add(terrainTile);
                 }
             }
@@ -449,6 +455,19 @@ namespace Course.Field
                 return TerrainType.Flat;
             }
             
+            // Get the 'Elevated' type
+            if (IsTerrainElevated(neighbors, neighborCounts))
+            {
+                return TerrainType.Elevated;
+            }
+
+            // Get the Inverted Corners
+            // Inverted Corners appear when the top neighbor count is at least 3 and they are not all in a straight line
+            if (IsTerrainInvertedCorner(neighbors, neighborCounts))
+            {
+                return TerrainType.CornerInverse;
+            }
+            
             // Get the Slopes
             // Slopes only appear when direct top neighbors have neighbors on both sides
             if (IsTerrainSlope(neighbors, neighborCounts))
@@ -509,12 +528,171 @@ namespace Course.Field
                 } 
             }
 
+            if (neighborCounts[2] == 1)
+            {
+                if (neighbors[0, 1, 2])
+                {
+                    // X- Slope
+                    return true;
+                }
+                if (neighbors[2, 1, 2])
+                {
+                    // X+ Slope
+                    return true;
+                }
+                if (neighbors[1, 0, 2])
+                {
+                    // Y- Slope
+                    return true;
+                }
+                if (neighbors[1, 2, 2])
+                {
+                    // Y+ Slope
+                    return true;
+                }
+            }
+            
+            // Test for slopes where terrain is neighboring on left and right but not center
+            if (neighborCounts[2] == 2)
+            {
+                if (neighbors[0, 0, 2] && neighbors[0, 2, 2])
+                {
+                    // X- Slope
+                    return true;
+                }
+                if (neighbors[2, 0, 2] && neighbors[2, 2, 2])
+                {
+                    // X+ Slope
+                    return true;
+                }
+                if (neighbors[0, 0, 2] && neighbors[2, 0, 2])
+                {
+                    // Y- Slope
+                    return true;
+                }
+                if (neighbors[0, 2, 2] && neighbors[2, 2, 2])
+                {
+                    // Y+ Slope
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        
+        // Returns a bool denoting if the terrain is an inverted corner based on its neighbors
+        private bool IsTerrainInvertedCorner(bool[,,] neighbors, int[] neighborCounts)
+        {
+            if (neighborCounts[2] > 2)
+            {
+                if (neighborCounts[2] == 3)
+                {
+                    if (neighbors[0, 1, 2] && neighbors[1, 0, 2])
+                    {
+                        // X- and Y-
+                        return true;
+                    }
+                    if (neighbors[2, 1, 2] && neighbors[1, 2, 2])
+                    {
+                        // X+ and Y+
+                        return true;
+                    }
+                    if (neighbors[0, 1, 2] && neighbors[1, 2, 2])
+                    {
+                        // X- and Y+
+                        return true;
+                    }
+                    if (neighbors[2, 1, 2] && neighbors[1, 0, 2])
+                    {
+                        // X+ and Y-
+                        return true;
+                    }
+
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+        
+        // Returns a bool denoting if the terrain is elevated based on its neighbors
+        private bool IsTerrainElevated(bool[,,] neighbors, int[] neighborCounts)
+        {
+            if (neighborCounts[2] < 5)
+            {
+                return false;
+            }
+            else
+            {
+                if (neighbors[0, 1, 2])
+                {
+                    // X-
+                    if (neighbors[1, 0, 2] && neighbors[1, 2, 2])
+                    {
+                        return true;
+                    }
+                }
+                if (neighbors[2, 1, 2])
+                {
+                    // X+
+                    if (neighbors[1, 0, 2] && neighbors[1, 2, 2])
+                    {
+                        return true;
+                    }
+                }
+                if (neighbors[1, 0, 2])
+                {
+                    // Y-
+                    if (neighbors[0, 1, 2] && neighbors[2, 1, 2])
+                    {
+                        return true;
+                    }
+                }
+                if (neighbors[1, 2, 2])
+                {
+                    // Y+
+                    if (neighbors[0, 1, 2] && neighbors[2, 1, 2])
+                    {
+                        return true;
+                    }
+                } 
+            }
+
             return false;
         }
         
         // Returns the rotation of the terrain given the neighbors
         private int GetTerrainRotation(bool[,,] neighbors, int[] neighborCounts)
         {
+            // Inverted Corner rotation
+            if (IsTerrainInvertedCorner(neighbors, neighborCounts))
+            {
+                if (neighbors[0, 1, 2] && neighbors[1, 0, 2])
+                {
+                    // X- and Y-
+                    return -90; // RIGHT
+                }
+                if (neighbors[2, 1, 2] && neighbors[1, 2, 2])
+                {
+                    // X+ and Y+
+                    return 90; // RIGHT
+                }
+                if (neighbors[0, 1, 2] && neighbors[1, 2, 2])
+                {
+                    // X- and Y+
+                    return 0;
+                }
+                if (neighbors[2, 1, 2] && neighbors[1, 0, 2])
+                {
+                    // X+ and Y-
+                    return 180;
+                }
+            }
+            
             // Slope rotation
             if (IsTerrainSlope(neighbors, neighborCounts))
             {
@@ -554,9 +732,57 @@ namespace Course.Field
                         return 90;
                     }
                 }
+                
+                if (neighborCounts[2] == 1)
+                {
+                    if (neighbors[0, 1, 2])
+                    {
+                        // X- Slope
+                        return 0;
+                    }
+                    if (neighbors[2, 1, 2])
+                    {
+                        // X+ Slope
+                        return 180;
+                    }
+                    if (neighbors[1, 0, 2])
+                    {
+                        // Y- Slope
+                        return -90;
+                    }
+                    if (neighbors[1, 2, 2])
+                    {
+                        // Y+ Slope
+                        return 90;
+                    }
+                }
+                
+                if (neighborCounts[2] == 2)
+                {
+                    if (neighbors[0, 0, 2] && neighbors[0, 2, 2])
+                    {
+                        // X- Slope
+                        return 0;
+                    }
+                    if (neighbors[2, 0, 2] && neighbors[2, 2, 2])
+                    {
+                        // X+ Slope
+                        return 180;
+                    }
+                    if (neighbors[0, 0, 2] && neighbors[2, 0, 2])
+                    {
+                        // Y- Slope
+                        return -90;
+                    }
+                    if (neighbors[0, 2, 2] && neighbors[2, 2, 2])
+                    {
+                        // Y+ Slope
+                        return 90;
+                    }
+                }
             }
             
-            // Corner Rotation
+            // Corner rotation
             if (neighborCounts[2] == 1)
             {
                 if (neighbors[0, 0, 2])
