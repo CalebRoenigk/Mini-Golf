@@ -111,7 +111,7 @@ namespace Course
                     Gizmos.color = Color.magenta;
                     switch (terrain.terrainType)
                     {
-                        case TerrainType.None:
+                        case FieldTileType.None:
                             Gizmos.color = Color.magenta;
                             Gizmos.DrawWireCube(GridToWorld(terrain.position), new Vector3(1f, 0.5f, 1f));
                             break;

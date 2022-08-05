@@ -7,7 +7,7 @@ namespace Course.Field
     public class TerrainTile
     {
         public Vector3Int position;
-        public TerrainType terrainType;
+        public FieldTileType terrainType;
         public int rotation;
         
         public TerrainTile()
@@ -18,18 +18,18 @@ namespace Course.Field
         public TerrainTile(Vector3Int position)
         {
             this.position = position;
-            this.terrainType = TerrainType.None;
+            this.terrainType = FieldTileType.None;
             this.rotation = 0;
         }
         
-        public TerrainTile(Vector3Int position, TerrainType terrainType)
+        public TerrainTile(Vector3Int position, FieldTileType terrainType)
         {
             this.position = position;
             this.terrainType = terrainType;
             this.rotation = 0;
         }
         
-        public TerrainTile(Vector3Int position, TerrainType terrainType, int rotation)
+        public TerrainTile(Vector3Int position, FieldTileType terrainType, int rotation)
         {
             this.position = position;
             this.terrainType = terrainType;

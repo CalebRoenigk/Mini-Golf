@@ -386,11 +386,11 @@ namespace Course.Field
                 {
                     // Get the counts of neighbors by Z slice
                     int[] neighborCounts = GetNeighborCountByZSlice(neighbors);
-                    TerrainTile terrainTile = new TerrainTile(terrainPosition, GetTerrainType(neighbors, neighborCounts), GetTerrainRotation(neighbors, neighborCounts));
-                    if (terrainTile.terrainType == TerrainType.Elevated)
+                    TerrainTile terrainTile = new TerrainTile(terrainPosition, GetFieldTileType(neighbors, neighborCounts), GetTerrainRotation(neighbors, neighborCounts));
+                    if (terrainTile.terrainType == FieldTileType.Elevated)
                     {
                         terrainTile.position += Vector3Int.forward;
-                        terrainTile.terrainType = TerrainType.Flat;
+                        terrainTile.terrainType = FieldTileType.Flat;
                         additiveFlags.Add(terrainTile.position);
                     }
                     
@@ -414,11 +414,11 @@ namespace Course.Field
                 {
                     // Get the counts of neighbors by Z slice
                     int[] neighborCounts = GetNeighborCountByZSlice(neighbors);
-                    TerrainTile terrainTile = new TerrainTile(terrainPosition, GetTerrainType(neighbors, neighborCounts), GetTerrainRotation(neighbors, neighborCounts));
-                    if (terrainTile.terrainType == TerrainType.Elevated)
+                    TerrainTile terrainTile = new TerrainTile(terrainPosition, GetFieldTileType(neighbors, neighborCounts), GetTerrainRotation(neighbors, neighborCounts));
+                    if (terrainTile.terrainType == FieldTileType.Elevated)
                     {
                         terrainTile.position += Vector3Int.forward;
-                        terrainTile.terrainType = TerrainType.Flat;
+                        terrainTile.terrainType = FieldTileType.Flat;
                         additiveFlags.Add(terrainTile.position);
                     }
                     
@@ -477,42 +477,42 @@ namespace Course.Field
         }
         
         // Returns the terrain type given the neighbors
-        private TerrainType GetTerrainType(bool[,,] neighbors, int[] neighborCounts)
+        private FieldTileType GetFieldTileType(bool[,,] neighbors, int[] neighborCounts)
         {
             // Get Standard Flats
             if (neighborCounts[2] == 0)
             {
-                return TerrainType.Flat;
+                return FieldTileType.Flat;
             }
             
             // Get the 'Elevated' type
             if (IsTerrainElevated(neighbors, neighborCounts))
             {
-                return TerrainType.Elevated;
+                return FieldTileType.Elevated;
             }
 
             // Get the Inverted Corners
             // Inverted Corners appear when the top neighbor count is at least 3 and they are not all in a straight line
             if (IsTerrainInvertedCorner(neighbors, neighborCounts))
             {
-                return TerrainType.CornerInverse;
+                return FieldTileType.CornerInverse;
             }
             
             // Get the Slopes
             // Slopes only appear when direct top neighbors have neighbors on both sides
             if (IsTerrainSlope(neighbors, neighborCounts))
             {
-                return TerrainType.Slope;
+                return FieldTileType.Slope;
             }
             
             // Get the Corners
             // Corners appear when only 1 neighbor is counted above
             if (neighborCounts[2] == 1)
             {
-                return TerrainType.Corner;
+                return FieldTileType.Corner;
             }
             
-            return TerrainType.None;
+            return FieldTileType.None;
         }
         
         // Returns a bool denoting if the terrain is a slope based on its neighbors
