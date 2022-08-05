@@ -2,11 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Course
+namespace Course.Field
 {
     [System.Serializable]
-    public class ModifierSettings
+    public class FieldSettings
     {
+        // Playfield
+        public Playfield playfield;
+        
+        // Terrain
+        public float terrainScale;
+        public int terrainHeight;
+        public int terrainMargin;
+        public float decoChance;
+
         // Obstacles
         public float obstacleChance;
         public float rockChance;
@@ -19,11 +28,8 @@ namespace Course
         public float archChance;
         public float windmillChance;
         public float hillChance;
-        
-        // Deco
-        public float decoChance;
 
-        public ModifierSettings()
+        public FieldSettings()
         {
             this.obstacleChance = 0f;
             this.rockChance = 0f;
@@ -37,7 +43,27 @@ namespace Course
             this.decoChance = 0f;
         }
         
-        public ModifierSettings(float obstacleChance, float landmarkChance, float decoChance)
+        public FieldSettings(Playfield playfield, float terrainScale, float decoChance)
+        {
+            this.playfield = playfield;
+
+            this.terrainScale = terrainScale;
+            this.terrainHeight = 5;
+            this.terrainMargin = 5;
+            this.decoChance = decoChance;
+            
+            this.obstacleChance = 0f;
+            this.rockChance = 0f;
+            this.waterChance = 0f;
+            this.sandChance = 0f;
+            this.grassChance = 0f;
+            this.landmarkChance = 0f;
+            this.archChance = 0f;
+            this.windmillChance = 0f;
+            this.hillChance = 0f;
+        }
+        
+        public FieldSettings(float obstacleChance, float landmarkChance, float decoChance)
         {
             this.obstacleChance = obstacleChance;
             this.rockChance = obstacleChance;
@@ -51,7 +77,7 @@ namespace Course
             this.decoChance = decoChance;
         }
         
-        public ModifierSettings(float obstacleChance, float rockChance, float waterChance, float sandChance, float grassChance, float landmarkChance, float archChance, float windmillChance, float hillChance, float decoChance)
+        public FieldSettings(float obstacleChance, float rockChance, float waterChance, float sandChance, float grassChance, float landmarkChance, float archChance, float windmillChance, float hillChance, float decoChance)
         {
             this.obstacleChance = obstacleChance;
             this.rockChance = rockChance;

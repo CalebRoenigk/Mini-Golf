@@ -1,4 +1,4 @@
-namespace Course
+namespace Course.Field
 {
     public enum TileModifier
     {

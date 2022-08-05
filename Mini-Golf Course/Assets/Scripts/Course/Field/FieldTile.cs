@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Course
+namespace Course.Field
 {
     // Represents the tile in a field
     public class FieldTile
