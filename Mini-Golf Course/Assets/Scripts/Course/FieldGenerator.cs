@@ -106,7 +106,7 @@ namespace Course
                 Gizmos.DrawWireCube(GridToWorld(new Vector3Int((int)Mathf.Floor(playfield.bounds.center.x), (int)Mathf.Floor(playfield.bounds.center.y), (int)Mathf.Floor(playfield.bounds.center.z))), GridToWorld(playfield.bounds.size));
                 
                 // Draw terrain
-                foreach (TerrainTile terrain in playfield.terrain)
+                foreach (FieldTile terrain in playfield.terrain)
                 {
                     Gizmos.color = Color.magenta;
                     switch (terrain.terrainType)
@@ -122,6 +122,29 @@ namespace Course
                             Gizmos.DrawMesh(terrainMeshes[((int)terrain.terrainType) - 1], GridToWorld(terrain.position), quaternion, Vector3.one);
                             Gizmos.color = Color.red;
                             Gizmos.DrawWireMesh(terrainMeshes[((int)terrain.terrainType) - 1], GridToWorld(terrain.position), quaternion, Vector3.one);
+                            break;
+                    }
+                }
+                
+                // Draw Track
+                foreach (FieldTile track in playfield.track)
+                {
+                    Gizmos.color = Color.magenta;
+                    switch (track.terrainType)
+                    {
+                        case FieldTileType.None:
+                            Gizmos.color = Color.blue;
+                            Gizmos.DrawCube(GridToWorld(track.position), new Vector3(1f, 0.5f, 1f));
+                            Gizmos.color = Color.cyan;
+                            Gizmos.DrawWireCube(GridToWorld(track.position), new Vector3(1f, 0.5f, 1f));
+                            break;
+                        default:
+                            // Quaternion quaternion = new Quaternion();
+                            // quaternion.eulerAngles = new Vector3(-90f, track.rotation, 0f);
+                            // Gizmos.color = Color.magenta;
+                            // Gizmos.DrawMesh(terrainMeshes[((int)track.terrainType) - 1], GridToWorld(track.position), quaternion, Vector3.one);
+                            // Gizmos.color = Color.red;
+                            // Gizmos.DrawWireMesh(terrainMeshes[((int)track.terrainType) - 1], GridToWorld(track.position), quaternion, Vector3.one);
                             break;
                     }
                 }

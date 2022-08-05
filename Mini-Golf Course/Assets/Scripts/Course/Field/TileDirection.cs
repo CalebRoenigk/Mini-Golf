@@ -1,5 +1,6 @@
 namespace Course.Field
 {
+    // TODO: REMOVE THIS ENUM
     public enum TileDirection
     {
         Empty,

@@ -21,7 +21,8 @@ namespace Course.Field
         public Vector3Int end;
         
         // Playfield Tiles
-        public List<TerrainTile> terrain = new List<TerrainTile>();
+        public List<FieldTile> terrain = new List<FieldTile>();
+        public List<FieldTile> track = new List<FieldTile>();
 
         // OLD
         
@@ -52,9 +53,15 @@ namespace Course.Field
 
             // Generate Terrain
             GenerateTerrain();
-
-
+            
             // Then Deco will be generated
+            
+            // Store the field as if it were real tiles
+            foreach (Vector3Int fieldTile in field)
+            {
+                track.Add(new FieldTile(fieldTile, FieldTileType.None, 0));
+            }
+
             // Then cast the field down towards the terrain
             // Then calculate the tiles
             // Store the tiles
@@ -386,7 +393,7 @@ namespace Course.Field
                 {
                     // Get the counts of neighbors by Z slice
                     int[] neighborCounts = GetNeighborCountByZSlice(neighbors);
-                    TerrainTile terrainTile = new TerrainTile(terrainPosition, GetFieldTileType(neighbors, neighborCounts), GetTerrainRotation(neighbors, neighborCounts));
+                    FieldTile terrainTile = new FieldTile(terrainPosition, GetFieldTileType(neighbors, neighborCounts), GetTerrainRotation(neighbors, neighborCounts));
                     if (terrainTile.terrainType == FieldTileType.Elevated)
                     {
                         terrainTile.position += Vector3Int.forward;
@@ -414,7 +421,7 @@ namespace Course.Field
                 {
                     // Get the counts of neighbors by Z slice
                     int[] neighborCounts = GetNeighborCountByZSlice(neighbors);
-                    TerrainTile terrainTile = new TerrainTile(terrainPosition, GetFieldTileType(neighbors, neighborCounts), GetTerrainRotation(neighbors, neighborCounts));
+                    FieldTile terrainTile = new FieldTile(terrainPosition, GetFieldTileType(neighbors, neighborCounts), GetTerrainRotation(neighbors, neighborCounts));
                     if (terrainTile.terrainType == FieldTileType.Elevated)
                     {
                         terrainTile.position += Vector3Int.forward;
