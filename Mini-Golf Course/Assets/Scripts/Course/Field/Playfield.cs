@@ -384,24 +384,6 @@ namespace Course.Field
                 {
                     terrain.Add(terrainPosition, TerrainType.Flat);
                 }
-                else
-                {
-                    Debug.Log("Terrain Does Not Exist");
-                }
-
-                if (terrainPosition.Equals(new Vector3Int(0, 0, -2)))
-                {
-                    for (int x = 0; x < 3; x++)
-                    {
-                        for (int y = 0; y < 3; y++)
-                        {
-                            for (int z = 0; z < 3; z++)
-                            {
-                                Debug.Log(new Vector3Int(x,y,z).ToString() + " " + neighbors[x,y,z]);
-                            }
-                        }
-                    }
-                }
             }
         }
         
