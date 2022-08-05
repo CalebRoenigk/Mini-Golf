@@ -111,6 +111,7 @@ namespace Course
                     switch (terrain.terrainType)
                     {
                         case TerrainType.None:
+                            Gizmos.DrawWireCube(GridToWorld(terrain.position), new Vector3(1f, 0.5f, 1f));
                             break;
                         default:
                             Quaternion quaternion = new Quaternion();
@@ -118,8 +119,6 @@ namespace Course
                             Gizmos.DrawMesh(terrainMeshes[((int)terrain.terrainType) - 1], GridToWorld(terrain.position), quaternion, Vector3.one);
                             break;
                     }
-                    
-                    Gizmos.DrawWireCube(GridToWorld(terrain.position), new Vector3(1f, 0.5f, 1f));
                 }
             }
         }

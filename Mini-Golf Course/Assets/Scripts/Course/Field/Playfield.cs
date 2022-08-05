@@ -383,7 +383,9 @@ namespace Course.Field
                 // If there is not a tile above, this terrain exists
                 if (!neighbors[1, 1, 2])
                 {
-                    TerrainTile terrainTile = new TerrainTile(terrainPosition, GetTerrainType(neighbors), GetTerrainRotation(neighbors));
+                    // Get the counts of neighbors by Z slice
+                    int[] neighborCounts = GetNeighborCountByZSlice(neighbors);
+                    TerrainTile terrainTile = new TerrainTile(terrainPosition, GetTerrainType(neighbors, neighborCounts), GetTerrainRotation(neighbors, neighborCounts));
                     terrain.Add(terrainTile);
                 }
             }
@@ -408,6 +410,22 @@ namespace Course.Field
                         if (!bounds.Contains(neighborPosition))
                         {
                             neighbors[x, y, z] = z == 1;
+                            // Add true if the z is 2 and the next neighbor exists in the list
+                            if (z == 2)
+                            {
+                                List<Vector3Int> neighboringOffsets = new List<Vector3Int>() { Vector3Int.down, Vector3Int.left, Vector3Int.right, Vector3Int.up };
+                                bool neighborFlag = false;
+                                foreach (Vector3Int neighboringOffset in neighboringOffsets)
+                                {
+                                    Vector3Int neighborCheck = neighboringOffset + neighborPosition;
+                                    if (!neighborFlag)
+                                    {
+                                        neighborFlag = terrainFlags.Contains(neighborCheck);
+                                    }
+                                }
+                                
+                                neighbors[x, y, z] = neighborFlag;
+                            }
                             continue;
                         }
                         else
@@ -423,81 +441,87 @@ namespace Course.Field
         }
         
         // Returns the terrain type given the neighbors
-        private TerrainType GetTerrainType(bool[,,] neighbors)
+        private TerrainType GetTerrainType(bool[,,] neighbors, int[] neighborCounts)
         {
-            // Get the counts of neighbors by Z slice
-            int[] neighborCounts = GetNeighborCountByZSlice(neighbors);
-            
-            // Get standard flat pieces
+            // Get Standard Flats
             if (neighborCounts[2] == 0)
             {
-                // Piece is flat
                 return TerrainType.Flat;
             }
             
-            // Get the slopes
+            // Get the Slopes
             // Slopes only appear when direct top neighbors have neighbors on both sides
-            if (IsTerrainSlope(neighbors))
+            if (IsTerrainSlope(neighbors, neighborCounts))
             {
                 return TerrainType.Slope;
+            }
+            
+            // Get the Corners
+            // Corners appear when only 1 neighbor is counted above
+            if (neighborCounts[2] == 1)
+            {
+                return TerrainType.Corner;
             }
             
             return TerrainType.None;
         }
         
         // Returns a bool denoting if the terrain is a slope based on its neighbors
-        private bool IsTerrainSlope(bool[,,] neighbors)
+        private bool IsTerrainSlope(bool[,,] neighbors, int[] neighborCounts)
         {
-            if (neighbors[0, 1, 2])
+            if (neighborCounts[2] <= 3 && neighborCounts[2] > 1)
             {
-                // X-
-                if (neighbors[0, 0, 2] && neighbors[0, 2, 2])
+                if (neighbors[0, 1, 2])
                 {
-                    // X- Slope
-                    return true;
+                    // X-
+                    if (neighbors[0, 0, 2] || neighbors[0, 2, 2])
+                    {
+                        // X- Slope
+                        return true;
+                    }
                 }
-            }
-            if (neighbors[2, 1, 2])
-            {
-                // X+
-                if (neighbors[2, 0, 2] && neighbors[2, 2, 2])
+                if (neighbors[2, 1, 2])
                 {
-                    // X+ Slope
-                    return true;
+                    // X+
+                    if (neighbors[2, 0, 2] || neighbors[2, 2, 2])
+                    {
+                        // X+ Slope
+                        return true;
+                    }
                 }
-            }
-            if (neighbors[1, 0, 2])
-            {
-                // Y-
-                if (neighbors[0, 0, 2] && neighbors[2, 0, 2])
+                if (neighbors[1, 0, 2])
                 {
-                    // Y- Slope
-                    return true;
+                    // Y-
+                    if (neighbors[0, 0, 2] || neighbors[2, 0, 2])
+                    {
+                        // Y- Slope
+                        return true;
+                    }
                 }
-            }
-            if (neighbors[1, 2, 2])
-            {
-                // Y+
-                if (neighbors[0, 2, 2] && neighbors[2, 2, 2])
+                if (neighbors[1, 2, 2])
                 {
-                    // Y+ Slope
-                    return true;
-                }
+                    // Y+
+                    if (neighbors[0, 2, 2] || neighbors[2, 2, 2])
+                    {
+                        // Y+ Slope
+                        return true;
+                    }
+                } 
             }
 
             return false;
         }
         
         // Returns the rotation of the terrain given the neighbors
-        private int GetTerrainRotation(bool[,,] neighbors)
+        private int GetTerrainRotation(bool[,,] neighbors, int[] neighborCounts)
         {
             // Slope rotation
-            if (IsTerrainSlope(neighbors))
+            if (IsTerrainSlope(neighbors, neighborCounts))
             {
                 if (neighbors[0, 1, 2])
                 {
                     // X-
-                    if (neighbors[0, 0, 2] && neighbors[0, 2, 2])
+                    if (neighbors[0, 0, 2] || neighbors[0, 2, 2])
                     {
                         // X- Slope
                         return 0;
@@ -506,7 +530,7 @@ namespace Course.Field
                 if (neighbors[2, 1, 2])
                 {
                     // X+
-                    if (neighbors[2, 0, 2] && neighbors[2, 2, 2])
+                    if (neighbors[2, 0, 2] || neighbors[2, 2, 2])
                     {
                         // X+ Slope
                         return 180;
@@ -515,7 +539,7 @@ namespace Course.Field
                 if (neighbors[1, 0, 2])
                 {
                     // Y-
-                    if (neighbors[0, 0, 2] && neighbors[2, 0, 2])
+                    if (neighbors[0, 0, 2] || neighbors[2, 0, 2])
                     {
                         // Y- Slope
                         return -90;
@@ -524,11 +548,36 @@ namespace Course.Field
                 if (neighbors[1, 2, 2])
                 {
                     // Y+
-                    if (neighbors[0, 2, 2] && neighbors[2, 2, 2])
+                    if (neighbors[0, 2, 2] || neighbors[2, 2, 2])
                     {
                         // Y+ Slope
                         return 90;
                     }
+                }
+            }
+            
+            // Corner Rotation
+            if (neighborCounts[2] == 1)
+            {
+                if (neighbors[0, 0, 2])
+                {
+                    // X- Y-
+                    return -90;
+                }
+                if (neighbors[2, 0, 2])
+                {
+                    // X+ Y-
+                    return 180;
+                }
+                if (neighbors[2, 2, 2])
+                {
+                    // X+ Y+
+                    return 90;
+                }
+                if (neighbors[0, 2, 2])
+                {
+                    // X- Y+
+                    return 0;
                 }
             }
             
