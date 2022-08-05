@@ -55,14 +55,16 @@ namespace Course.Field
             GenerateTerrain();
             
             // Then Deco will be generated
-            
-            // Store the field as if it were real tiles
-            foreach (Vector3Int fieldTile in field)
-            {
-                track.Add(new FieldTile(fieldTile, FieldTileType.None, 0));
-            }
+            // TODO: ADD DECO GENERATION
 
             // Then cast the field down towards the terrain
+            field = CastTrackToTerrain(field);
+
+            foreach (Vector3Int fieldPosition in field)
+            {
+                track.Add(new FieldTile(fieldPosition, FieldTileType.None, 0));
+            }
+
             // Then calculate the tiles
             // Store the tiles
             // Need to create a start and end Vector3Int
@@ -866,6 +868,71 @@ namespace Course.Field
             }
 
             return counts;
+        }
+        
+        // Casts the field positions to be directly above the terrain
+        private List<Vector3Int> CastTrackToTerrain(List<Vector3Int> field)
+        {
+            // Iterate over the field, casting each tile to 1 above the terrain at that location
+            int currentZ = 0;
+            List<Vector3Int> fieldCast = new List<Vector3Int>();
+            for (int i = 0; i < field.Count; i++)
+            {
+                // Get the field position
+                Vector3Int fieldPosition = field[i];
+                
+                // Get the terrain z
+                int terrainZ = GetTerrainZ(fieldPosition);
+                
+                if (i == 0)
+                {
+                    // On the first tile, determine the current Z
+                    currentZ = terrainZ + 1;
+                }
+                else
+                {
+                    // Check if the terrain z is more than 1 higher or lower than the current z
+                    if ((int)Mathf.Abs((terrainZ + 1) - currentZ) > 1)
+                    {
+                        // Only increment the step down by 1
+                        int terrainZChange = (terrainZ + 1) - currentZ;
+                        currentZ += (terrainZChange / (int)Mathf.Abs(terrainZChange));
+                    }
+                    else
+                    { 
+                        // Store the new current z
+                        currentZ = terrainZ + 1;
+                    }
+                }
+                
+                // Store the new field tile to the cast list
+                fieldCast.Add(new Vector3Int(fieldPosition.x, fieldPosition.y, currentZ));
+            }
+            
+            return fieldCast;
+        }
+        
+        // Returns the z of the terrain given a position
+        private int GetTerrainZ(Vector3Int position)
+        {
+            FieldTile terrainTile = terrain.Find(t => t.position.x == position.x && t.position.y == position.y);
+            if (terrainTile.position != null)
+            {
+                return terrainTile.position.z;
+            }
+
+            // foreach (FieldTile terrainTile in terrain)
+            // {
+            //     Vector3Int terrainPosition = terrainTile.position;
+            //
+            //     if (terrainPosition.x == position.x && terrainPosition.y == position.y)
+            //     {
+            //         Debug.Log(terrainPosition.z);
+            //         return terrainPosition.z;
+            //     }
+            // }
+
+            return position.z;
         }
 
         // // OLD
