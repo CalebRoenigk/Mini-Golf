@@ -340,20 +340,26 @@ namespace Course.Field
         {
             // Create the perlin noise values used for the terrain
             float baseNoiseOffset = (float)seed + 0.5f;
+            
+            // Expand the bounds to fit the terrain
+            bounds.zMin -= fieldSettings.terrainHeight;
+            bounds.xMin -= fieldSettings.terrainMargin;
+            bounds.xMax += fieldSettings.terrainMargin;
+            bounds.yMin -= fieldSettings.terrainMargin;
+            bounds.yMax += fieldSettings.terrainMargin;
 
-            // Create a base terrain at the bottom of the terrain height
-            int zMin = bounds.zMin - fieldSettings.terrainHeight;
+            // Create a base terrain at the bottom of the terrain height and build terrain up from there
             List<Vector3Int> terrainFlags = new List<Vector3Int>();
-            for (int z = zMin; z < 0; z++)
+            for (int z = bounds.zMin; z < 0; z++)
             {
-                float terrainThreshold = ((float)(z - zMin)) / Mathf.Abs(zMin - 1);
+                float terrainThreshold = ((float)(z - bounds.zMin)) / Mathf.Abs(bounds.zMin - 1);
 
-                for (int x = bounds.xMin - fieldSettings.terrainMargin; x < bounds.xMax + 1 + fieldSettings.terrainMargin; x++)
+                for (int x = bounds.xMin; x < bounds.xMax; x++)
                 {
-                    for (int y = bounds.yMin - fieldSettings.terrainMargin; y < bounds.yMax + 1 + fieldSettings.terrainMargin; y++)
+                    for (int y = bounds.yMin; y < bounds.yMax; y++)
                     {
                         float terrainSample = Mathf.PerlinNoise((x * fieldSettings.terrainScale) + baseNoiseOffset,(y * fieldSettings.terrainScale) + baseNoiseOffset);
-                        if (z == zMin || terrainSample >= terrainThreshold)
+                        if (z == bounds.zMin || terrainSample >= terrainThreshold)
                         {
                             terrainFlags.Add(new Vector3Int(x,y,z));
                         }
@@ -378,6 +384,24 @@ namespace Course.Field
                 {
                     terrain.Add(terrainPosition, TerrainType.Flat);
                 }
+                else
+                {
+                    Debug.Log("Terrain Does Not Exist");
+                }
+
+                if (terrainPosition.Equals(new Vector3Int(0, 0, -2)))
+                {
+                    for (int x = 0; x < 3; x++)
+                    {
+                        for (int y = 0; y < 3; y++)
+                        {
+                            for (int z = 0; z < 3; z++)
+                            {
+                                Debug.Log(new Vector3Int(x,y,z).ToString() + " " + neighbors[x,y,z]);
+                            }
+                        }
+                    }
+                }
             }
         }
         
@@ -387,11 +411,11 @@ namespace Course.Field
             bool[,,] neighbors = new bool[3, 3, 3];
 
             // Check all neighboring positions for terrain
-            for (int z = 0; z < 3; z++)
+            for (int x = 0; x < 3; x++)
             {
-                for (int x = 0; x < 3; x++)
+                for (int y = 0; y < 3; y++)
                 {
-                    for (int y = 0; y < 3; y++)
+                    for (int z = 0; z < 3; z++)
                     {
                         Vector3Int offsetPosition = new Vector3Int(-1 + x, -1 + y, -1 + z);
                         Vector3Int neighborPosition = terrainPosition + offsetPosition;

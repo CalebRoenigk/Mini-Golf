@@ -97,12 +97,19 @@ namespace Course
                 //     Gizmos.DrawWireCube(GridToWorld(cell), new Vector3(1f, 0.5f, 1f));
                 // }
                 
+                // Draw bounds
+                Gizmos.color = Color.cyan;
+                Gizmos.DrawWireCube(GridToWorld(new Vector3Int((int)Mathf.Floor(playfield.bounds.center.x), (int)Mathf.Floor(playfield.bounds.center.y), (int)Mathf.Floor(playfield.bounds.center.z))), GridToWorld(playfield.bounds.size));
+                
                 // Draw terrain
                 foreach (KeyValuePair<Vector3Int, TerrainType> terrain in playfield.terrain)
                 {
                     Gizmos.color = Color.magenta;
                     Gizmos.DrawWireCube(GridToWorld(terrain.Key), new Vector3(1f, 0.5f, 1f));
                 }
+                
+                Gizmos.color = Color.blue;
+                Gizmos.DrawCube(GridToWorld(new Vector3Int(0,0,-2)), new Vector3(1f, 0.5f, 1f));
             }
         }
         
