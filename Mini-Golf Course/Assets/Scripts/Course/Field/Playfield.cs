@@ -376,6 +376,7 @@ namespace Course.Field
         private void ConvertTerrainFlagsToTerrain(List<Vector3Int> terrainFlags)
         {
             // Iterate over the flags create the terrain dict
+            List<Vector3Int> additiveFlags = new List<Vector3Int>();
             foreach (Vector3Int terrainPosition in terrainFlags)
             {
                 bool[,,] neighbors = GetTerrainNeighbors(terrainFlags, terrainPosition);
@@ -390,6 +391,35 @@ namespace Course.Field
                     {
                         terrainTile.position += Vector3Int.forward;
                         terrainTile.terrainType = TerrainType.Flat;
+                        additiveFlags.Add(terrainTile.position);
+                    }
+                    
+                    terrain.Add(terrainTile);
+                }
+            }
+            
+            // Clear the terrain tiles
+            terrain.Clear();
+            
+            // Combine the additive flags with the terrain flags
+            terrainFlags.AddRange(additiveFlags);
+            
+            // Recalc the terrain tiles
+            foreach (Vector3Int terrainPosition in terrainFlags)
+            {
+                bool[,,] neighbors = GetTerrainNeighbors(terrainFlags, terrainPosition);
+                
+                // If there is not a tile above, this terrain exists
+                if (!neighbors[1, 1, 2])
+                {
+                    // Get the counts of neighbors by Z slice
+                    int[] neighborCounts = GetNeighborCountByZSlice(neighbors);
+                    TerrainTile terrainTile = new TerrainTile(terrainPosition, GetTerrainType(neighbors, neighborCounts), GetTerrainRotation(neighbors, neighborCounts));
+                    if (terrainTile.terrainType == TerrainType.Elevated)
+                    {
+                        terrainTile.position += Vector3Int.forward;
+                        terrainTile.terrainType = TerrainType.Flat;
+                        additiveFlags.Add(terrainTile.position);
                     }
                     
                     terrain.Add(terrainTile);
@@ -674,12 +704,12 @@ namespace Course.Field
                 if (neighbors[0, 1, 2] && neighbors[1, 0, 2])
                 {
                     // X- and Y-
-                    return -90; // RIGHT
+                    return -90;
                 }
                 if (neighbors[2, 1, 2] && neighbors[1, 2, 2])
                 {
                     // X+ and Y+
-                    return 90; // RIGHT
+                    return 90;
                 }
                 if (neighbors[0, 1, 2] && neighbors[1, 2, 2])
                 {
