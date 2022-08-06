@@ -36,7 +36,8 @@ namespace Course
         // [SerializeField] private Ball ball;
         
         [Header("Gizmos")]
-        [SerializeField] private List<Mesh> terrainMeshes = new List<Mesh>();
+        [SerializeField] private List<FieldTileData> terrainTileData = new List<FieldTileData>();
+        [SerializeField] private List<FieldTileData> trackTileData = new List<FieldTileData>();
 
         void Start()
         {
@@ -58,49 +59,8 @@ namespace Course
         
         private void OnDrawGizmos()
         {
-            // // Create a random for generation
-            // System.Random rand = new System.Random(seed + level);
-            //
-            // // Get the start
-            // Vector3Int start = Vector3Int.zero;
-            //
-            // // Determine the end as a point on a circle of 'level' radius
-            // float randomAngle = rand.Next(0, 360);
-            // Vector3Int end = new Vector3Int((int)Mathf.Floor(Mathf.Cos(Mathf.Deg2Rad * randomAngle)* level), (int)Mathf.Floor(Mathf.Sin(Mathf.Deg2Rad * randomAngle) * level), 0);
-            //
-            // // Create a 'level' number of obstacles that the pathfinding must work around
-            // BoundsInt fieldBounds = new BoundsInt(Vector3Int.zero, Vector3Int.one);
-            // Vector3Int min = new Vector3Int((int)Mathf.Min(start.x, end.x), (int)Mathf.Min(start.y, end.y), 0);
-            // Vector3Int max = new Vector3Int((int)Mathf.Max(start.x, end.x) + 5, (int)Mathf.Max(start.y, end.y) + 5, 0);
-            // fieldBounds.SetMinMax(min, max);
-            // List<Vector3Int> obstacles = CreateRandomObstacles(fieldBounds, start, end, level, seed);
-            //
-            // Gizmos.color = Color.cyan;
-            // Gizmos.DrawWireCube(new Vector3(fieldBounds.center.x, fieldBounds.center.z * 0.5f, fieldBounds.center.y), GridToWorld(fieldBounds.size));
-            //
-            // Gizmos.color = new Color(0f, 1f, 0f, .5f);
-            // Gizmos.DrawCube(GridToWorld(start), Vector3.one);
-            // Gizmos.color = new Color(1f, 1f, 0f, 0.5f);
-            // Gizmos.DrawCube(GridToWorld(end), Vector3.one);
-            //
-            // foreach (Vector3Int obstacle in obstacles)
-            // {
-            //     Gizmos.color = Color.red;
-            //     Gizmos.DrawWireCube(GridToWorld(obstacle), Vector3.one);
-            // }
-            // Vector3Int lastCell = start;
-            //
             if (playfield != null)
             {
-                // Draw field
-                // foreach (Vector3Int cell in playfield.field)
-                // {
-                //     Gizmos.color = Color.blue;
-                //     Gizmos.DrawLine(GridToWorld(cell), GridToWorld(lastCell));
-                //     lastCell = cell;
-                //     Gizmos.DrawWireCube(GridToWorld(cell), new Vector3(1f, 0.5f, 1f));
-                // }
-                
                 // Draw bounds
                 Gizmos.color = Color.cyan;
                 Gizmos.DrawWireCube(GridToWorld(new Vector3Int((int)Mathf.Floor(playfield.bounds.center.x), (int)Mathf.Floor(playfield.bounds.center.y), (int)Mathf.Floor(playfield.bounds.center.z))), GridToWorld(playfield.bounds.size));
@@ -109,7 +69,7 @@ namespace Course
                 foreach (FieldTile terrain in playfield.terrain)
                 {
                     Gizmos.color = Color.magenta;
-                    switch (terrain.terrainType)
+                    switch (terrain.tileType)
                     {
                         case FieldTileType.None:
                             Gizmos.color = Color.magenta;
@@ -118,10 +78,19 @@ namespace Course
                         default:
                             Quaternion quaternion = new Quaternion();
                             quaternion.eulerAngles = new Vector3(-90f, terrain.rotation, 0f);
+                            Mesh terrainMesh = terrainTileData.Find(t => t.fieldTileType == terrain.tileType).mesh;
                             Gizmos.color = Color.magenta;
-                            Gizmos.DrawMesh(terrainMeshes[((int)terrain.terrainType) - 1], GridToWorld(terrain.position), quaternion, Vector3.one);
+                            if (terrain.modifiers.Count > 0)
+                            {
+                                Gizmos.color = Color.yellow;
+                            }
+                            Gizmos.DrawMesh(terrainMesh, GridToWorld(terrain.position), quaternion, Vector3.one);
                             Gizmos.color = Color.red;
-                            Gizmos.DrawWireMesh(terrainMeshes[((int)terrain.terrainType) - 1], GridToWorld(terrain.position), quaternion, Vector3.one);
+                            if (terrain.modifiers.Count > 0)
+                            {
+                                Gizmos.color = Color.green;
+                            }
+                            Gizmos.DrawWireMesh(terrainMesh, GridToWorld(terrain.position), quaternion, Vector3.one);
                             break;
                     }
                 }
@@ -130,21 +99,23 @@ namespace Course
                 foreach (FieldTile track in playfield.track)
                 {
                     Gizmos.color = Color.magenta;
-                    switch (track.terrainType)
+                    print(track.tileType);
+                    switch (track.tileType)
                     {
                         case FieldTileType.None:
-                            Gizmos.color = Color.blue;
-                            Gizmos.DrawCube(GridToWorld(track.position), new Vector3(1f, 0.5f, 1f));
-                            Gizmos.color = Color.cyan;
-                            Gizmos.DrawWireCube(GridToWorld(track.position), new Vector3(1f, 0.5f, 1f));
+                            // Gizmos.color = Color.blue;
+                            // Gizmos.DrawCube(GridToWorld(track.position), new Vector3(1f, 0.5f, 1f));
+                            // Gizmos.color = Color.cyan;
+                            // Gizmos.DrawWireCube(GridToWorld(track.position), new Vector3(1f, 0.5f, 1f));
                             break;
                         default:
-                            // Quaternion quaternion = new Quaternion();
-                            // quaternion.eulerAngles = new Vector3(-90f, track.rotation, 0f);
-                            // Gizmos.color = Color.magenta;
-                            // Gizmos.DrawMesh(terrainMeshes[((int)track.terrainType) - 1], GridToWorld(track.position), quaternion, Vector3.one);
-                            // Gizmos.color = Color.red;
-                            // Gizmos.DrawWireMesh(terrainMeshes[((int)track.terrainType) - 1], GridToWorld(track.position), quaternion, Vector3.one);
+                            Quaternion quaternion = new Quaternion();
+                            quaternion.eulerAngles = new Vector3(-90f, track.rotation, 0f);
+                            Mesh trackMesh = trackTileData.Find(t => t.fieldTileType == track.tileType).mesh;
+                            Gizmos.color = Color.blue;
+                            Gizmos.DrawMesh(trackMesh, GridToWorld(track.position), quaternion, Vector3.one);
+                            Gizmos.color = Color.cyan;
+                            Gizmos.DrawWireMesh(trackMesh, GridToWorld(track.position), quaternion, Vector3.one);
                             break;
                     }
                 }

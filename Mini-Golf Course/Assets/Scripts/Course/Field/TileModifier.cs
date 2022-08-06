@@ -10,6 +10,8 @@ namespace Course.Field
         Pillars,
         Windmill,
         Hill,
-        Hole
+        Hole,
+        Tree,
+        Bush
     }
 }

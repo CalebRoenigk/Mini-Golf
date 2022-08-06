@@ -7,7 +7,7 @@ namespace Course.Field
     public class FieldTile
     {
         public Vector3Int position;
-        public FieldTileType terrainType;
+        public FieldTileType tileType;
         public int rotation;
         public List<TileModifier> modifiers = new List<TileModifier>();
         
@@ -19,21 +19,21 @@ namespace Course.Field
         public FieldTile(Vector3Int position)
         {
             this.position = position;
-            this.terrainType = FieldTileType.None;
+            this.tileType = FieldTileType.None;
             this.rotation = 0;
         }
         
-        public FieldTile(Vector3Int position, FieldTileType terrainType)
+        public FieldTile(Vector3Int position, FieldTileType tileType)
         {
             this.position = position;
-            this.terrainType = terrainType;
+            this.tileType = tileType;
             this.rotation = 0;
         }
         
-        public FieldTile(Vector3Int position, FieldTileType terrainType, int rotation)
+        public FieldTile(Vector3Int position, FieldTileType tileType, int rotation)
         {
             this.position = position;
-            this.terrainType = terrainType;
+            this.tileType = tileType;
             this.rotation = rotation;
         }
         
