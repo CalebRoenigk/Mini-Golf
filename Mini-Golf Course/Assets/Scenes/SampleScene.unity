@@ -916,6 +916,7 @@ MonoBehaviour:
                     river: []
                     track: []
                     support: []
+                    riverPositions: []
                   terrainScale: 0
                   terrainHeight: 0
                   terrainMargin: 0
@@ -941,6 +942,7 @@ MonoBehaviour:
                 river: []
                 track: []
                 support: []
+                riverPositions: []
               terrainScale: 0
               terrainHeight: 0
               terrainMargin: 0
@@ -966,6 +968,7 @@ MonoBehaviour:
             river: []
             track: []
             support: []
+            riverPositions: []
           terrainScale: 0
           terrainHeight: 0
           terrainMargin: 0
@@ -991,6 +994,7 @@ MonoBehaviour:
         river: []
         track: []
         support: []
+        riverPositions: []
       terrainScale: 0
       terrainHeight: 0
       terrainMargin: 0
@@ -1016,6 +1020,7 @@ MonoBehaviour:
     river: []
     track: []
     support: []
+    riverPositions: []
   terrainParent: {fileID: 2113258124}
   trackParent: {fileID: 1664791535}
   terrainTileData:

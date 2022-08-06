@@ -217,7 +217,7 @@ namespace Course
                             materialVector.y = 1;
                         }
 
-                        materialVector *= 0.25f;
+                        materialVector *= 0.5f;
                         
                         materialVectorID = "_RiverSpeed";
                         hasSecondaryMaterial = true;
