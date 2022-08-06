@@ -1009,14 +1009,28 @@ MonoBehaviour:
     mesh: {fileID: 1918644232014397273, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
   decoTileData:
   - tileModifer: 10
-    mesh: {fileID: -6244881048818478901, guid: ae1a6c4e6579042e8b9919e95fa1ae32, type: 3}
+    meshes:
+    - {fileID: 5958362384829529401, guid: ae1a6c4e6579042e8b9919e95fa1ae32, type: 3}
     material: {fileID: 2100000, guid: 984522d1f1e234f18ae85f31e02c0fb1, type: 2}
+    colors:
+    - {r: 0.08627451, g: 0.3529412, b: 0.29803923, a: 1}
+    - {r: 0.007843138, g: 0.25882354, b: 0.23529412, a: 1}
+    - {r: 0.078431375, g: 0.30588236, b: 0.24313726, a: 1}
   - tileModifer: 9
-    mesh: {fileID: 0}
+    meshes:
+    - {fileID: 0}
     material: {fileID: 0}
+    colors:
+    - {r: 1, g: 1, b: 1, a: 1}
   - tileModifer: 1
-    mesh: {fileID: 0}
-    material: {fileID: 0}
+    meshes:
+    - {fileID: 7145985834937623779, guid: ae1a6c4e6579042e8b9919e95fa1ae32, type: 3}
+    - {fileID: -6169218675856362124, guid: ae1a6c4e6579042e8b9919e95fa1ae32, type: 3}
+    material: {fileID: 2100000, guid: 9930814b546a740ceb0bccdb91fa3d4f, type: 2}
+    colors:
+    - {r: 0.60784316, g: 0.67058825, b: 0.69803923, a: 1}
+    - {r: 0.6627451, g: 0.7294118, b: 0.74509805, a: 1}
+    - {r: 0.60784316, g: 0.65882355, b: 0.7058824, a: 1}
   fieldTilePrefab: {fileID: 1220470970535892180, guid: 452c0eca9edde4ce98842e45453a756e,
     type: 3}
   decoTilePrefab: {fileID: 1220470970535892180, guid: a826470cc6ea4428ca45e84a284daa7b,

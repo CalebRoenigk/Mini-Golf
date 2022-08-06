@@ -9,7 +9,8 @@ namespace Course
     public struct DecoTileData
     {
         public TileModifier tileModifer;
-        public Mesh mesh;
+        public List<Mesh> meshes;
         public Material material;
+        public List<Color> colors;
     }
 }

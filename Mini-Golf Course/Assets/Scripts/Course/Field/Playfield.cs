@@ -880,7 +880,7 @@ namespace Course.Field
                     // Add a random deco to the terrain
                     List<TileModifier> decoModifiers = new List<TileModifier>() { TileModifier.Bush, TileModifier.Tree, TileModifier.Rock };
                     
-                    terrain[i].AddModifier(decoModifiers[rand.Next(0, decoModifiers.Count - 1)]);
+                    terrain[i].AddModifier(decoModifiers[rand.Next(0, decoModifiers.Count)]);
                 }
             }
         }

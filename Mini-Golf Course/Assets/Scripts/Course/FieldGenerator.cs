@@ -147,7 +147,6 @@ namespace Course
         {
             playfield = GeneratePlayfield();
             InstantiatePlayfield();
-            // InstantiateDeco();
 
             // ball.transform.position = playfield.spawn;
         }
@@ -165,7 +164,9 @@ namespace Course
                 {
                     DecoTile decoObject = Instantiate(decoTilePrefab, GridToWorld(terrainTile.position), Quaternion.identity, terrainObject.transform).GetComponent<DecoTile>();
                     DecoTileData data = decoTileData.Find(t => t.tileModifer == modifier);
-                    decoObject.SetTile(terrainTile, data.mesh, data.material);
+                    Color color = data.colors[(int)Mathf.Floor(Random.Range(0, data.colors.Count))];
+                    Mesh mesh = data.meshes[(int)Mathf.Floor(Random.Range(0, data.meshes.Count))];
+                    decoObject.SetTile(modifier, color, mesh, data.material);
 
                     gameTiles.Add(decoObject.gameObject);
                 }
@@ -182,19 +183,7 @@ namespace Course
                 gameTiles.Add(trackObject.gameObject);
             }
         }
-        
-        // Creates deco objects for the level
-        private void InstantiateDeco()
-        {
-            // foreach (Vector3Int decoPoint in playfield.deco)
-            // {
-            //     GameObject deco = Instantiate(decoPrefabs[0], GridToWorld(decoPoint), Quaternion.identity);
-            //     deco.transform.eulerAngles = new Vector3(0f, 0f, 0f);
-            //     
-            //     gameTiles.Add(deco);
-            // }
-        }
-        
+
         // Removes the level tiles
         private void DestroyLevel()
         {

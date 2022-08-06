@@ -8,19 +8,21 @@ namespace Course
     public class DecoTile : MonoBehaviour
     {
         [Header("Data")]
-        [SerializeField] private FieldTile fieldTile;
-        
+        [SerializeField] private TileModifier tileModifier;
+
         [Header("Runtime")]
         [SerializeField] private MeshFilter meshFilter;
         [SerializeField] private Renderer renderer;
 
         // Set the tile up
-        public void SetTile(FieldTile tile, Mesh tileMesh, Material material)
+        public void SetTile(TileModifier modifier, Color color, Mesh tileMesh, Material material)
         {
-            fieldTile = tile;
+            tileModifier = modifier;
             meshFilter.mesh = tileMesh;
+
             renderer.material = material;
-            transform.eulerAngles = new Vector3(0f, fieldTile.rotation, 0f);
+            renderer.material.SetColor("_BaseColor", color);
+            transform.eulerAngles = new Vector3(0f, Random.Range(0f, 360f), 0f);
         }
     }
 }
