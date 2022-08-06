@@ -858,7 +858,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b883c3767907f48e1ba451b0ce69dd06, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  level: 26
+  level: 21
   seed: 3362
   obstacleChance: 0.125
   landmarkChance: 0.0625

@@ -48,6 +48,9 @@ namespace Course.Field
             
             // Generate the field and the bounds of the level
             List<Vector3Int> field = GenerateField();
+            
+            // Remove Spurs
+            field = CleanPathSpurs(field);
 
             // Generate Terrain
             GenerateTerrain();
@@ -68,7 +71,7 @@ namespace Course.Field
 
             // Manually clean the track
             ManualTrackClean();
-            
+
             // Remove deco below any track
             CleanDeco();
 
@@ -1371,7 +1374,7 @@ namespace Course.Field
         // Manually adjusts the track where needed
         private void ManualTrackClean()
         {
-            // Check over the entire track
+            // Check over the entire track forward
             for (int i = 1; i < track.Count - 1; i++)
             {
                 FieldTile previousTile = track[i - 1];
@@ -1387,7 +1390,62 @@ namespace Course.Field
                         currentTile.tileType = FieldTileType.Straight;
                     }
                 }
+                
+                // Fixes random pieces being 1 lower than their two direct neighbors
+                if (previousTile.position.z == nextTile.position.z && currentTile.position.z != previousTile.position.z)
+                {
+                    currentTile.position.z = previousTile.position.z;
+                }
             }
+            
+            // Check over the entire track backwards
+            for (int i = track.Count - 2; i > 0; i--)
+            {
+                FieldTile previousTile = track[i + 1];
+                FieldTile currentTile = track[i];
+                FieldTile nextTile = track[i - 1];
+                
+                // If the next track is a corner and it is not on the same z as the current track
+                if (nextTile.tileType == FieldTileType.Corner && nextTile.position.z != currentTile.position.z)
+                {
+                    // Check if the current tile can be pushed down
+                    if (currentTile.tileType == FieldTileType.Straight && GetTerrainZ(currentTile.position) == nextTile.position.z)
+                    {
+                        currentTile.position.z--;
+                    }
+                    else
+                    {
+                        nextTile.position.z = currentTile.position.z;
+                        continue;
+                    }
+                }
+                
+                // Inverse of the above
+                // If the current track is straight and the previous track is corner and the current track z != previous track z
+                if (currentTile.tileType == FieldTileType.Straight && previousTile.tileType == FieldTileType.Corner && currentTile.position.z != previousTile.position.z)
+                {
+                    // Check first if the current tile can meet the previous track
+                    if (currentTile.position.z > previousTile.position.z && GetTerrainZ(currentTile.position) + 1 == previousTile.position.z)
+                    {
+                        currentTile.position.z--;
+                    }
+                    if (currentTile.position.z < previousTile.position.z)
+                    {
+                        currentTile.position.z++;
+                    }
+                }
+            }
+
+            // Reset the track and recalc
+            List<Vector3Int> modifiedTrack = new List<Vector3Int>();
+            foreach (FieldTile trackTile in track)
+            {
+                modifiedTrack.Add(trackTile.position);
+            }
+            
+            track.Clear();
+            
+            track = GenerateTilePath(modifiedTrack);
         }
 
         // Removes any deco modifiers directly below any track
@@ -1486,6 +1544,18 @@ namespace Course.Field
                     {
                         subGoalsSelected.Add(flatGoal);
                     }
+                }
+            }
+            
+            // If sub-goals for the river are within 3f of eachother, remove 1
+            for (int i = 0; i < subGoalsSelected.Count - 1; i++)
+            {
+                Vector3Int currentGoal = subGoalsSelected[i];
+                Vector3Int nextGoal = subGoalsSelected[i + 1];
+
+                if (Vector3.Distance(currentGoal, nextGoal) < 3f)
+                {
+                    subGoalsSelected.Remove(nextGoal);
                 }
             }
 
@@ -1710,7 +1780,7 @@ namespace Course.Field
             int terrainIndex = terrain.FindIndex(t => t.position == end);   
             if (terrainIndex != -1)
             {
-                terrain.Remove(terrain[terrainIndex]);
+                terrain[terrainIndex].position.z -= 1;
             }
         }
         
