@@ -123,9 +123,13 @@ namespace Course.Field
                 Vector3Int randomOffset = new Vector3Int(rand.Next(-maxOffset, maxOffset), rand.Next(-maxOffset, maxOffset));
                 currentEnd += randomOffset;
                 currentEnd = ClampWithinBounds(currentEnd);
+                
+                // Create the obstacle dictionary
+                Dictionary<int, List<Vector3Int>> obstaclesDict = new Dictionary<int, List<Vector3Int>>();
+                obstaclesDict.Add(3, obstacles);
 
                 // Get the current path from current start to current end
-                List<Vector3Int> currentPath = FindPath(currentStart, currentEnd, obstacles);
+                List<Vector3Int> currentPath = FindPath(currentStart, currentEnd, obstaclesDict);
                 currentPath.RemoveRange(currentPath.Count - 1, 1);
                 
                 // Add the current path to the main path and store the new current start
@@ -195,7 +199,7 @@ namespace Course.Field
         }
         
         // Pathfinds from a start to an end
-        private List<Vector3Int> FindPath(Vector3Int pathStart, Vector3Int pathEnd, List<Vector3Int> obstacles)
+        private List<Vector3Int> FindPath(Vector3Int pathStart, Vector3Int pathEnd, Dictionary<int, List<Vector3Int>> obstacles)
         {
             // Create a pathfinding grid
             PathGrid pathGrid = new PathGrid(bounds, obstacles);
@@ -264,7 +268,7 @@ namespace Course.Field
             // Out of nodes on the open list
             return null;
         }
-        
+
         // Calculates the distance cost between two nodes
         private int CalculateDistanceCost(PathNode a, PathNode b, int moveStraightCost, int moveDiagonalCost)
         {
@@ -1468,16 +1472,45 @@ namespace Course.Field
                 
                 if (!subGoalsSelected.Contains(subGoalSelected))
                 {
-                    subGoalsSelected.Add(subGoalSelected);
+                    // Find the closest flat terrain to the sub goal
+                    Vector3Int flatGoal = GetClosestTerrainTypeToPoint(subGoalSelected, terrain.FindAll(t => t.tileType == FieldTileType.Flat));
+                    flatGoal.z = 0;
+
+                    if (!subGoalsSelected.Contains(flatGoal))
+                    {
+                        subGoalsSelected.Add(flatGoal);
+                    }
                 }
             }
-            
+
             // Add the end river to the subgoals
             if (!subGoalsSelected.Contains(endRiver))
             {
                 subGoalsSelected.Add(endRiver);
             }
             
+            // Create a list of obstacles for all corner and inverse corner terrain tiles so the river will avoid them
+            // Add all slopes to the obstacle list as well
+            List<Vector3Int> cornerObstacles = new List<Vector3Int>();
+            List<Vector3Int> slopeObstacles = new List<Vector3Int>();
+            foreach (FieldTile terrainTile in terrain)
+            {
+                if (terrainTile.tileType == FieldTileType.Corner || terrainTile.tileType == FieldTileType.CornerInverse)
+                {
+                    cornerObstacles.Add(terrainTile.position);
+                }
+                if (terrainTile.tileType == FieldTileType.Slope)
+                {
+                    slopeObstacles.Add(terrainTile.position);
+                }
+            }
+            
+            // Create the obstacles dictionary 
+            Dictionary<int, List<Vector3Int>> obstacleDict = new Dictionary<int, List<Vector3Int>>();
+            obstacleDict.Add(3, obstacles);
+            obstacleDict.Add(10, slopeObstacles);
+            obstacleDict.Add(10000, cornerObstacles);
+
             // Create a series of sub-paths with the sub-goals
             // For each segment of the path, find the subpath
             List<Vector3Int> riverPath = new List<Vector3Int>();
@@ -1488,7 +1521,7 @@ namespace Course.Field
                 Vector3Int currentEnd = subGoalsSelected[i];
 
                 // Get the current path from current start to current end
-                List<Vector3Int> currentPath = FindPath(currentStart, currentEnd, obstacles);
+                List<Vector3Int> currentPath = FindPath(currentStart, currentEnd, obstacleDict);
                 
                 // Store the new start
                 currentStart = currentPath[currentPath.Count - 1];
@@ -1499,6 +1532,10 @@ namespace Course.Field
                 // Add the current path to the main path
                 riverPath.AddRange(currentPath);
             }
+            
+            // Add the end to the river path
+            riverPath.Add(currentStart);
+            
             
             // For each river path position, find the terrain tile below
             foreach (Vector3Int riverPosition in riverPath)
@@ -1544,6 +1581,32 @@ namespace Course.Field
                 if (searchPoint == point)
                 {
                     return searchPoint;
+                }
+            }
+
+            return returnPoint;
+        }
+        
+        // Returns the closest terrain position of a list of matched terrain
+        private Vector3Int GetClosestTerrainTypeToPoint(Vector3Int point, List<FieldTile> matchedTerrain)
+        {
+            Vector3Int returnPoint = matchedTerrain[0].position;
+            float closestDistance = Vector3.Distance(point, returnPoint);
+
+            // Iterate over the terrain to find the closest that matches the type
+            foreach (FieldTile terrainTile in matchedTerrain)
+            {
+                float tileDistance = Vector3.Distance(point, terrainTile.position);
+                if (tileDistance < closestDistance)
+                {
+                    closestDistance = tileDistance;
+                    returnPoint = terrainTile.position;
+                }
+
+                // Return early if the tile matches the
+                if (returnPoint == point)
+                {
+                    return returnPoint;
                 }
             }
 

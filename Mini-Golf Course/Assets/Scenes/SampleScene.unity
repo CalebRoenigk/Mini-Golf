@@ -913,6 +913,7 @@ MonoBehaviour:
                     start: {x: 0, y: 0, z: 0}
                     end: {x: 0, y: 0, z: 0}
                     terrain: []
+                    river: []
                     track: []
                     support: []
                   terrainScale: 0
@@ -937,6 +938,7 @@ MonoBehaviour:
                 start: {x: 0, y: 0, z: 0}
                 end: {x: 0, y: 0, z: 0}
                 terrain: []
+                river: []
                 track: []
                 support: []
               terrainScale: 0
@@ -961,6 +963,7 @@ MonoBehaviour:
             start: {x: 0, y: 0, z: 0}
             end: {x: 0, y: 0, z: 0}
             terrain: []
+            river: []
             track: []
             support: []
           terrainScale: 0
@@ -985,6 +988,7 @@ MonoBehaviour:
         start: {x: 0, y: 0, z: 0}
         end: {x: 0, y: 0, z: 0}
         terrain: []
+        river: []
         track: []
         support: []
       terrainScale: 0
@@ -1009,6 +1013,7 @@ MonoBehaviour:
     start: {x: 0, y: 0, z: 0}
     end: {x: 0, y: 0, z: 0}
     terrain: []
+    river: []
     track: []
     support: []
   terrainParent: {fileID: 2113258124}

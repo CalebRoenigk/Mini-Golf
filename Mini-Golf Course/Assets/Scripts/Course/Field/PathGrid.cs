@@ -8,7 +8,7 @@ namespace Course.Field
         public List<PathNode> gridNodes;
         public BoundsInt bounds;
 
-        public PathGrid(BoundsInt bounds, List<Vector3Int> obstacles)
+        public PathGrid(BoundsInt bounds, Dictionary<int, List<Vector3Int>> obstacles)
         {
             this.gridNodes = new List<PathNode>();
             this.bounds = bounds;
@@ -18,8 +18,19 @@ namespace Course.Field
                 for (int y = bounds.yMin; y < bounds.yMax; y++)
                 {
                     Vector3Int position = new Vector3Int(x, y, 0);
-                    bool isObstacle = obstacles.Contains(position);
-                    gridNodes.Add(new PathNode(this, position, isObstacle));
+                    gridNodes.Add(new PathNode(this, position));
+                }
+            }
+            
+            // Iterate over each modifier cost in the obstacles dictionary
+            foreach (KeyValuePair<int, List<Vector3Int>> obstacleList in obstacles)
+            {
+                int modifierValue = obstacleList.Key;
+                // For each point in this modifier group, set the modifier cost of this pathnode
+                foreach (Vector3Int obstacle in obstacleList.Value)
+                {
+                    PathNode obstacleNode = GetNode(obstacle);
+                    obstacleNode.SetModifierCost(modifierValue);
                 }
             }
         }
