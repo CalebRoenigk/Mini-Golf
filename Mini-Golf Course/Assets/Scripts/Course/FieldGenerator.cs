@@ -147,15 +147,6 @@ namespace Course
                     foreach (FieldTile river in playfield.river)
                     {
                         Gizmos.color = Color.blue;
-                        if (river.tileType == FieldTileType.Elevated)
-                        {
-                            Gizmos.color = Color.cyan;
-                        }
-                        if (river.tileType == FieldTileType.Flat)
-                        {
-                            Gizmos.color = Color.red;
-                        }
-                        // Gizmos.DrawWireCube(GridToWorld(river.position), new Vector3(1f, 0.5f, 1f));
                         Gizmos.DrawCube(GridToWorld(river.position), new Vector3(1f, 0.5f, 1f));
                     }
                 }
@@ -183,14 +174,17 @@ namespace Course
 
                 foreach (TileModifier modifier in terrainTile.modifiers)
                 {
-                    DecoTile decoObject = Instantiate(decoTilePrefab, GridToWorld(terrainTile.position), Quaternion.identity, terrainObject.transform).GetComponent<DecoTile>();
-                    DecoTileData data = decoTileData.Find(t => t.tileModifer == modifier);
-                    Color color = data.colors[(int)Mathf.Floor(Random.Range(0, data.colors.Count))];
-                    Mesh mesh = data.meshes[(int)Mathf.Floor(Random.Range(0, data.meshes.Count))];
-                    decoObject.SetTile(modifier, color, mesh, data.material);
+                    if (modifier != TileModifier.Water)
+                    {
+                        DecoTile decoObject = Instantiate(decoTilePrefab, GridToWorld(terrainTile.position), Quaternion.identity, terrainObject.transform).GetComponent<DecoTile>();
+                        DecoTileData data = decoTileData.Find(t => t.tileModifer == modifier);
+                        Color color = data.colors[(int)Mathf.Floor(Random.Range(0, data.colors.Count))];
+                        Mesh mesh = data.meshes[(int)Mathf.Floor(Random.Range(0, data.meshes.Count))];
+                        decoObject.SetTile(modifier, color, mesh, data.material);
 
-                    decoObject.gameObject.tag = "Decoration";
-                    gameTiles.Add(decoObject.gameObject);
+                        decoObject.gameObject.tag = "Decoration";
+                        gameTiles.Add(decoObject.gameObject);
+                    }
                 }
                 
                 terrainObject.gameObject.tag = "Terrain";

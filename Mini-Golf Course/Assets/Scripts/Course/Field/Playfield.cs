@@ -1510,25 +1510,18 @@ namespace Course.Field
                 if (terrainIndex != -1)
                 {
                     // Clear all other modifiers from the terrain tile
-                    terrain[terrainIndex]
+                    terrain[terrainIndex].modifiers.Clear();
                     
                     // Add the water modifier to the terrain tile
+                    terrain[terrainIndex].modifiers.Add(TileModifier.Water);
                     
+                    // Make a holder for the river tile, WILL PROBS REMOVE THIS LATER
+                    // TODO: REMOVE RIVER FROM PLAYFIELD, ONLY USE WATER MODIFIER ON TERRAIN
+                    FieldTile riverTile = new FieldTile(terrain[terrainIndex].position, terrain[terrainIndex].tileType, terrain[terrainIndex].rotation);
+                    riverTile.AddModifier(TileModifier.Water);
+                    river.Add(riverTile);
                 }
-                
             }
-
-            foreach (Vector3Int riverPosition in riverPath)
-            {
-                river.Add(new FieldTile(riverPosition, FieldTileType.None, 0));
-            }
-            
-            foreach (Vector3Int obstacle in obstacles)
-            {
-                river.Add(new FieldTile(obstacle, FieldTileType.Flat, 0));
-            }
-            
-            river.Add(new FieldTile(trackCenter, FieldTileType.Elevated, 0));
         }
         
         // Returns the closest point from a list to a given point 
@@ -1570,6 +1563,9 @@ namespace Course.Field
         // Generates the supports for the track
         private void GenerateSupports()
         {
+            // Create a random for generation
+            System.Random rand = new System.Random(seed + level);
+            
             // Iterate over each track tile
             foreach (FieldTile trackTile in track)
             {
@@ -1622,7 +1618,7 @@ namespace Course.Field
                         Vector3Int supportPosition = trackTile.position - new Vector3Int(0, 0, i);
                         
                         // Create the support tile
-                        FieldTile supportTile = new FieldTile(supportPosition, FieldTileType.Flat, trackTile.rotation);
+                        FieldTile supportTile = new FieldTile(supportPosition, FieldTileType.Flat, trackTile.rotation + (int)(Mathf.Round(rand.Next(0,3)) * 90f));
                         supportTile.AddModifier(TileModifier.Support);
                         
                         // Add the support tile to the list of supports
