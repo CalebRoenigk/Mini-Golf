@@ -957,11 +957,30 @@ MonoBehaviour:
     type: 3}
   decoPrefabs:
   - {fileID: 523061781484770858, guid: 1305beea058a94c1b8499bf0e2d04f21, type: 3}
-  terrainMeshes:
-  - {fileID: 195369175416034054, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
-  - {fileID: 5797273022398963634, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
-  - {fileID: -7420860524048880844, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
-  - {fileID: -8104979325612622895, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
+  terrainTileData:
+  - fieldTileType: 1
+    mesh: {fileID: 195369175416034054, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
+  - fieldTileType: 2
+    mesh: {fileID: 5797273022398963634, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
+  - fieldTileType: 3
+    mesh: {fileID: -7420860524048880844, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
+  - fieldTileType: 4
+    mesh: {fileID: -8104979325612622895, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
+  trackTileData:
+  - fieldTileType: 6
+    mesh: {fileID: -1713572069868522086, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
+  - fieldTileType: 8
+    mesh: {fileID: 107353918992496832, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
+  - fieldTileType: 7
+    mesh: {fileID: 395867661652627741, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
+  - fieldTileType: 4
+    mesh: {fileID: 4391874447215336391, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
+  - fieldTileType: 2
+    mesh: {fileID: -7446973482673724422, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
+  - fieldTileType: 9
+    mesh: {fileID: 7288914446582604333, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
+  - fieldTileType: 10
+    mesh: {fileID: 1918644232014397273, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
 --- !u!4 &1384096886
 Transform:
   m_ObjectHideFlags: 0

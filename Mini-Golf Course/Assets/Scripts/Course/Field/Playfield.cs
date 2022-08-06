@@ -65,13 +65,9 @@ namespace Course.Field
             // Then calculate the track tiles
             GenerateTrack(field);
             
-            
-            foreach (Vector3Int fieldPosition in field)
-            {
-                track.Add(new FieldTile(fieldPosition, FieldTileType.None, 0));
-            }
+            // Remove deco below any track
+            CleanDeco();
 
-            
             // Store the tiles
             // Need to create a start and end Vector3Int
 
@@ -954,19 +950,12 @@ namespace Course.Field
             FieldTile terrainTile = terrain.Find(t => t.position.x == position.x && t.position.y == position.y);
             if (terrainTile.position != null)
             {
+                if (terrainTile.tileType == FieldTileType.Flat)
+                {
+                    return terrainTile.position.z - 1;
+                }
                 return terrainTile.position.z;
             }
-
-            // foreach (FieldTile terrainTile in terrain)
-            // {
-            //     Vector3Int terrainPosition = terrainTile.position;
-            //
-            //     if (terrainPosition.x == position.x && terrainPosition.y == position.y)
-            //     {
-            //         Debug.Log(terrainPosition.z);
-            //         return terrainPosition.z;
-            //     }
-            // }
 
             return position.z;
         }
@@ -980,8 +969,9 @@ namespace Course.Field
                 // Get all neighbors for the current track position
                 bool[,,] trackNeighbors = GetTrackNeighbors(trackList, trackPosition);
                 int totalNeighborCount = GetTrackNeighborCount(trackNeighbors);
-                
-                track.Add(new FieldTile(trackPosition, GetTrackTileType(trackNeighbors, totalNeighborCount), GetTrackRotation(trackNeighbors, totalNeighborCount)));
+                List<Vector3Int> neighborDirections = GetNeighborDirections(trackNeighbors);
+
+                track.Add(new FieldTile(trackPosition, GetTrackTileType(neighborDirections, totalNeighborCount), GetTrackRotation(neighborDirections, totalNeighborCount)));
             }
         }
         
@@ -1048,47 +1038,113 @@ namespace Course.Field
         }
         
         // Returns the track type given the neighbors
-        private FieldTileType GetTrackTileType(bool[,,] neighbors, int totalNeighborCount)
+        private FieldTileType GetTrackTileType(List<Vector3Int> neighborDirections, int totalNeighborCount)
         {
+            // Solo point
+            if (totalNeighborCount == 0)
+            {
+                return FieldTileType.Solo;
+            }
+            
+            // End point
             if (totalNeighborCount == 1)
             {
-                // End point
-                Debug.Log(totalNeighborCount);
                 return FieldTileType.End;
+            }
+            
+            // Slope point
+            if (IsTrackSlope(neighborDirections))
+            {
+                return FieldTileType.Slope;
+            }
+            
+            // Straight point
+            if (IsTrackStraight(neighborDirections))
+            {
+                return FieldTileType.Straight;
+            }
+            
+            // Corner point
+            if (IsTrackCorner(neighborDirections))
+            {
+                return FieldTileType.Corner;
             }
             
             return FieldTileType.None;
         }
         
         // Returns the track rotation given the neighbors
-        private int GetTrackRotation(bool[,,] neighbors, int totalNeighborCount)
+        private int GetTrackRotation(List<Vector3Int> neighborDirections, int totalNeighborCount)
         {
-            List<Vector3Int> neighborDirections = GetNeighborDirections(neighbors);
+            // Directions
+            bool negX = neighborDirections.FindIndex(d => d.x == -1 && d.y == 0) != -1;
+            bool posX = neighborDirections.FindIndex(d => d.x == 1 && d.y == 0) != -1;
+            bool negY = neighborDirections.FindIndex(d => d.y == -1 && d.x == 0) != -1;
+            bool posY = neighborDirections.FindIndex(d => d.y == 1 && d.x == 0) != -1;
             
+            // End rotation
             if (totalNeighborCount == 1)
             {
-                // End point
-                if (neighborDirections.Contains(Vector3Int.down))
+                if (negY)
                 {
                     // Y-
                     return 0;
                 }
-                if (neighborDirections.Contains(Vector3Int.up))
+                if (posY)
                 {
                     // Y+
                     return 180;
                 }
-                if (neighborDirections.Contains(Vector3Int.left))
+                if (negX)
                 {
                     // X-
                     return 90;
                 }
-                if (neighborDirections.Contains(Vector3Int.right))
+                if (posX)
                 {
                     // X+
                     return -90;
                 }
-                return 0;
+            }
+
+            // Straight rotation
+            if (IsTrackStraight(neighborDirections))
+            {
+                if (negX && posX)
+                {
+                    // Straight on X
+                    return 90;
+                }
+                if (negY && posY)
+                {
+                    // Straight on Y
+                    return 0;
+                }
+            }
+            
+            // Corner rotation
+            if (IsTrackCorner(neighborDirections))
+            {
+                if (negX && negY)
+                {
+                    // X- Y-
+                    return 0;
+                }
+                if (negX && posY)
+                {
+                    // X- Y+
+                    return 90; // Right
+                }
+                if (posX && posY)
+                {
+                    // X+ Y+
+                    return 180;
+                }
+                if (posX && negY)
+                {
+                    // X+ Y-
+                    return -90; // Right
+                }
             }
             
             return 0;
@@ -1116,6 +1172,98 @@ namespace Course.Field
             }
 
             return directions;
+        }
+        
+        // Returns a bool denoting if the track neighbors are straight
+        private bool IsTrackStraight(List<Vector3Int> neighborDirections)
+        {
+            bool negX = neighborDirections.FindIndex(d => d.x == -1 && d.y == 0) != -1;
+            bool posX = neighborDirections.FindIndex(d => d.x == 1 && d.y == 0) != -1;
+            bool negY = neighborDirections.FindIndex(d => d.y == -1 && d.x == 0) != -1;
+            bool posY = neighborDirections.FindIndex(d => d.y == 1 && d.x == 0) != -1;
+            
+            if (negX && posX)
+            {
+                // X- X+
+                return true;
+            }
+            if (negY && posY)
+            {
+                // Y- Y+
+                return true;
+            }
+
+            return false;
+        }
+        
+        // Returns a bool denoting if the track neighbors are cornered
+        private bool IsTrackCorner(List<Vector3Int> neighborDirections)
+        {
+            bool negX = neighborDirections.FindIndex(d => d.x == -1 && d.y == 0) != -1;
+            bool posX = neighborDirections.FindIndex(d => d.x == 1 && d.y == 0) != -1;
+            bool negY = neighborDirections.FindIndex(d => d.y == -1 && d.x == 0) != -1;
+            bool posY = neighborDirections.FindIndex(d => d.y == 1 && d.x == 0) != -1;
+            
+            if (negX && negY)
+            {
+                // X- Y-
+                return true;
+            }
+            if (negX && posY)
+            {
+                // X- Y+
+                return true;
+            }
+            if (posX && posY)
+            {
+                // X+ Y+
+                return true;
+            }
+            if (posX && negY)
+            {
+                // X+ Y-
+                return true;
+            }
+            
+            return false;
+        }
+        
+        // Returns a bool denoting if the track neighbors are straight
+        private bool IsTrackSlope(List<Vector3Int> neighborDirections)
+        {
+            bool negX = neighborDirections.FindIndex(d => d.x == -1 && d.y == 0 && d.z != 0) != -1;
+            bool posX = neighborDirections.FindIndex(d => d.x == 1 && d.y == 0 && d.z != 0) != -1;
+            bool negY = neighborDirections.FindIndex(d => d.y == -1 && d.x == 0 && d.z != 0) != -1;
+            bool posY = neighborDirections.FindIndex(d => d.y == 1 && d.x == 0 && d.z != 0) != -1;
+            
+            if (negX && posX)
+            {
+                // X- X+
+                return true;
+            }
+            if (negY && posY)
+            {
+                // Y- Y+
+                return true;
+            }
+
+            return false;
+        }
+        
+        // Removes any deco modifers directly below any track
+        private void CleanDeco()
+        {
+            // Iterate over each track
+            foreach (FieldTile trackTile in track)
+            {
+                Vector3Int tileBelowPosition = trackTile.position;
+                int terrainIndex = terrain.FindIndex(t => t.position == tileBelowPosition);
+                
+                if (terrainIndex != -1)
+                {
+                    terrain[terrainIndex].modifiers.Clear();
+                }
+            }
         }
     }
 }
