@@ -28,16 +28,20 @@ namespace Course
 
         [Header("Playfield")]
         [SerializeField] private Playfield playfield;
-
-        [Header("Game")]
-        [SerializeField] private GameObject gameTilePrefab;
-        [SerializeField] private List<GameObject> decoPrefabs = new List<GameObject>();
-        private List<GameObject> gameTiles = new List<GameObject>();
-        // [SerializeField] private Ball ball;
+        [SerializeField] private Transform terrainParent;
+        [SerializeField] private Transform trackParent;
         
-        [Header("Gizmos")]
+        [Header("Data")]
         [SerializeField] private List<FieldTileData> terrainTileData = new List<FieldTileData>();
         [SerializeField] private List<FieldTileData> trackTileData = new List<FieldTileData>();
+
+        [Header("Game")]
+        [SerializeField] private GameObject fieldTilePrefab;
+        private List<GameObject> gameTiles = new List<GameObject>();
+        // [SerializeField] private Ball ball;
+
+        [Header("Gizmos")]
+        [SerializeField] private bool showDebug = false;
 
         void Start()
         {
@@ -59,75 +63,78 @@ namespace Course
         
         private void OnDrawGizmos()
         {
-            if (playfield != null)
+            if (showDebug)
             {
-                // Draw bounds
-                Gizmos.color = Color.cyan;
-                Gizmos.DrawWireCube(GridToWorld(new Vector3Int((int)Mathf.Floor(playfield.bounds.center.x), (int)Mathf.Floor(playfield.bounds.center.y), (int)Mathf.Floor(playfield.bounds.center.z))), GridToWorld(playfield.bounds.size));
-                
-                // Draw terrain
-                foreach (FieldTile terrain in playfield.terrain)
+                if (playfield != null)
                 {
-                    Gizmos.color = Color.magenta;
-                    switch (terrain.tileType)
+                    // Draw bounds
+                    Gizmos.color = Color.cyan;
+                    Gizmos.DrawWireCube(GridToWorld(new Vector3Int((int)Mathf.Floor(playfield.bounds.center.x), (int)Mathf.Floor(playfield.bounds.center.y), (int)Mathf.Floor(playfield.bounds.center.z))), GridToWorld(playfield.bounds.size));
+                    
+                    // Draw terrain
+                    foreach (FieldTile terrain in playfield.terrain)
                     {
-                        case FieldTileType.None:
-                            Gizmos.color = Color.magenta;
-                            Gizmos.DrawWireCube(GridToWorld(terrain.position), new Vector3(1f, 0.5f, 1f));
-                            break;
-                        default:
-                            Quaternion quaternion = new Quaternion();
-                            quaternion.eulerAngles = new Vector3(-90f, terrain.rotation, 0f);
-                            Mesh terrainMesh = terrainTileData.Find(t => t.fieldTileType == terrain.tileType).mesh;
-                            Gizmos.color = Color.magenta;
-                            Gizmos.DrawMesh(terrainMesh, GridToWorld(terrain.position), quaternion, Vector3.one);
-                            Gizmos.color = Color.red;
-                            Gizmos.DrawWireMesh(terrainMesh, GridToWorld(terrain.position), quaternion, Vector3.one);
-                            if (terrain.modifiers.Count > 0)
-                            {
-                                Gizmos.color = Color.black;
-                                Gizmos.DrawSphere(GridToWorld(terrain.position), 0.25f);
-                            }
-                            break;
+                        Gizmos.color = Color.magenta;
+                        switch (terrain.tileType)
+                        {
+                            case FieldTileType.None:
+                                Gizmos.color = Color.magenta;
+                                Gizmos.DrawWireCube(GridToWorld(terrain.position), new Vector3(1f, 0.5f, 1f));
+                                break;
+                            default:
+                                Quaternion quaternion = new Quaternion();
+                                quaternion.eulerAngles = new Vector3(-90f, terrain.rotation, 0f);
+                                Mesh terrainMesh = terrainTileData.Find(t => t.fieldTileType == terrain.tileType).mesh;
+                                Gizmos.color = Color.magenta;
+                                Gizmos.DrawMesh(terrainMesh, GridToWorld(terrain.position), quaternion, Vector3.one);
+                                Gizmos.color = Color.red;
+                                Gizmos.DrawWireMesh(terrainMesh, GridToWorld(terrain.position), quaternion, Vector3.one);
+                                if (terrain.modifiers.Count > 0)
+                                {
+                                    Gizmos.color = Color.black;
+                                    Gizmos.DrawSphere(GridToWorld(terrain.position), 0.25f);
+                                }
+                                break;
+                        }
                     }
-                }
-                
-                // Draw Track
-                foreach (FieldTile track in playfield.track)
-                {
-                    switch (track.tileType)
+                    
+                    // Draw Track
+                    foreach (FieldTile track in playfield.track)
                     {
-                        case FieldTileType.None:
-                            Gizmos.color = Color.blue;
-                            if (track.position.z == 1)
-                            {
-                                Gizmos.color = Color.green;
-                            }
-                            // Gizmos.DrawCube(GridToWorld(track.position), new Vector3(1f, 0.5f, 1f));
-                            Gizmos.color = Color.cyan;
-                            if (track.position.z == 1)
-                            {
-                                Gizmos.color = Color.yellow;
-                            }
-                            Gizmos.DrawWireCube(GridToWorld(track.position), new Vector3(1f, 0.5f, 1f));
-                            break;
-                        default:
-                            Quaternion quaternion = new Quaternion();
-                            quaternion.eulerAngles = new Vector3(-90f, track.rotation, 0f);
-                            Mesh trackMesh = trackTileData.Find(t => t.fieldTileType == track.tileType).mesh;
-                            Gizmos.color = Color.blue;
-                            if (track.tileType == FieldTileType.End)
-                            {
-                                Gizmos.color = Color.green;
-                            }
-                            Gizmos.DrawMesh(trackMesh, GridToWorld(track.position), quaternion, Vector3.one);
-                            Gizmos.color = Color.cyan;
-                            if (track.tileType == FieldTileType.End)
-                            {
-                                Gizmos.color = Color.yellow;
-                            }
-                            Gizmos.DrawWireMesh(trackMesh, GridToWorld(track.position), quaternion, Vector3.one);
-                            break;
+                        switch (track.tileType)
+                        {
+                            case FieldTileType.None:
+                                Gizmos.color = Color.blue;
+                                if (track.position.z == 1)
+                                {
+                                    Gizmos.color = Color.green;
+                                }
+                                // Gizmos.DrawCube(GridToWorld(track.position), new Vector3(1f, 0.5f, 1f));
+                                Gizmos.color = Color.cyan;
+                                if (track.position.z == 1)
+                                {
+                                    Gizmos.color = Color.yellow;
+                                }
+                                Gizmos.DrawWireCube(GridToWorld(track.position), new Vector3(1f, 0.5f, 1f));
+                                break;
+                            default:
+                                Quaternion quaternion = new Quaternion();
+                                quaternion.eulerAngles = new Vector3(-90f, track.rotation, 0f);
+                                Mesh trackMesh = trackTileData.Find(t => t.fieldTileType == track.tileType).mesh;
+                                Gizmos.color = Color.blue;
+                                if (track.tileType == FieldTileType.End)
+                                {
+                                    Gizmos.color = Color.green;
+                                }
+                                Gizmos.DrawMesh(trackMesh, GridToWorld(track.position), quaternion, Vector3.one);
+                                Gizmos.color = Color.cyan;
+                                if (track.tileType == FieldTileType.End)
+                                {
+                                    Gizmos.color = Color.yellow;
+                                }
+                                Gizmos.DrawWireMesh(trackMesh, GridToWorld(track.position), quaternion, Vector3.one);
+                                break;
+                        }
                     }
                 }
             }
@@ -137,10 +144,23 @@ namespace Course
         private void CreateLevel()
         {
             playfield = GeneratePlayfield();
-            // InstantiatePlayfield();
+            InstantiatePlayfield();
             // InstantiateDeco();
 
             // ball.transform.position = playfield.spawn;
+        }
+        
+        // Creates the objects for the game world
+        private void InstantiatePlayfield()
+        {
+            // Create the terrain
+            foreach (FieldTile terrainTile in playfield.terrain)
+            {
+                GameTile terrainObject = Instantiate(fieldTilePrefab, GridToWorld(terrainTile.position), Quaternion.identity, terrainParent).GetComponent<GameTile>();
+
+                terrainObject.SetTile(terrainTile, terrainTileData.Find(t => t.fieldTileType == terrainTile.tileType).mesh);
+            }
+            
         }
         
         // Creates deco objects for the level
