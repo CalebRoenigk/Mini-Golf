@@ -12,6 +12,7 @@ namespace Course.Field
         Straight,
         End,
         Tee,
-        FourWay
+        FourWay,
+        Bend
     }
 }

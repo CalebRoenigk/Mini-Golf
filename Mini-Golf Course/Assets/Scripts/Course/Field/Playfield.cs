@@ -61,7 +61,7 @@ namespace Course.Field
             field[field.Count - 1] = lastPosition;
 
             // Then calculate the track tiles
-            GenerateTrack(field);
+            track = GenerateTilePath(field);
 
             // Manually clean the track
             ManualTrackClean();
@@ -237,7 +237,6 @@ namespace Course.Field
 
                 if (currentNode == endNode)
                 {
-                    // Reached final node
                     return CalculatePath(endNode);
                 }
 
@@ -916,7 +915,7 @@ namespace Course.Field
         private List<Vector3Int> CastTrackToTerrain(List<Vector3Int> field)
         {
             // Generate the track as it stands
-            GenerateTrack(field);
+            track = GenerateTilePath(field);
             
             // Iterate down the track, for each track tile there can be a z level it is at
             // That z level can change only when the track is straight
@@ -982,8 +981,10 @@ namespace Course.Field
         }
 
         // Generate track for the playfield
-        private void GenerateTrack(List<Vector3Int> trackList)
+        private List<FieldTile> GenerateTilePath(List<Vector3Int> trackList)
         {
+            List<FieldTile> tilePath = new List<FieldTile>();
+            
             // Iterate down the track
             foreach (Vector3Int trackPosition in trackList)
             {
@@ -992,8 +993,10 @@ namespace Course.Field
                 int totalNeighborCount = GetTrackNeighborCount(trackNeighbors);
                 List<Vector3Int> neighborDirections = GetNeighborDirections(trackNeighbors);
 
-                track.Add(new FieldTile(trackPosition, GetTrackTileType(neighborDirections, totalNeighborCount), GetTrackRotation(neighborDirections, totalNeighborCount)));
+                tilePath.Add(new FieldTile(trackPosition, GetTrackTileType(neighborDirections, totalNeighborCount), GetTrackRotation(neighborDirections, totalNeighborCount)));
             }
+
+            return tilePath;
         }
         
         // Returns a cube array of direct neighbors for the given terrain tile and flags list
@@ -1497,19 +1500,23 @@ namespace Course.Field
             {
                 if (terrainTile.tileType == FieldTileType.Corner || terrainTile.tileType == FieldTileType.CornerInverse)
                 {
-                    cornerObstacles.Add(terrainTile.position);
+                    Vector3Int cornerObstacle = terrainTile.position;
+                    cornerObstacle.z = 0;
+                    cornerObstacles.Add(cornerObstacle);
                 }
                 if (terrainTile.tileType == FieldTileType.Slope)
                 {
-                    slopeObstacles.Add(terrainTile.position);
+                    Vector3Int slopeObstacle = terrainTile.position;
+                    slopeObstacle.z = 0;
+                    slopeObstacles.Add(slopeObstacle);
                 }
             }
             
             // Create the obstacles dictionary 
             Dictionary<int, List<Vector3Int>> obstacleDict = new Dictionary<int, List<Vector3Int>>();
-            obstacleDict.Add(3, obstacles);
-            obstacleDict.Add(10, slopeObstacles);
-            obstacleDict.Add(10000, cornerObstacles);
+            obstacleDict.Add(1, obstacles);
+            obstacleDict.Add(32, slopeObstacles);
+            obstacleDict.Add(9000, cornerObstacles);
 
             // Create a series of sub-paths with the sub-goals
             // For each segment of the path, find the subpath
@@ -1536,13 +1543,30 @@ namespace Course.Field
             // Add the end to the river path
             riverPath.Add(currentStart);
             
+            // Make the start and end extend 1 further so that they can become corners if needed
+            if (perpendicularOnY)
+            {
+                riverPath.Insert(0,startRiver + Vector3Int.down);
+                riverPath.Add(endRiver + Vector3Int.up);
+            }
+            else
+            {
+                riverPath.Insert(0,startRiver + Vector3Int.left);
+                riverPath.Add(endRiver + Vector3Int.right);
+            }
             
-            // For each river path position, find the terrain tile below
-            foreach (Vector3Int riverPosition in riverPath)
+            // Clean any spurs off the river
+            riverPath = CleanPathSpurs(riverPath);
+
+            // Get the river as a path of field tiles with proper tile types, these will be transfered down and stored in the terrain
+            List<FieldTile> riverTiles = GenerateTilePath(riverPath);
+
+            // For each river tile position, find the terrain tile below
+            foreach (FieldTile riverPathTile in riverTiles)
             {
                 // Get the index for the terrain below
-                int terrainIndex = terrain.FindIndex(t => t.position.x == riverPosition.x && t.position.y == riverPosition.y);
-
+                int terrainIndex = terrain.FindIndex(t => t.position.x == riverPathTile.position.x && t.position.y == riverPathTile.position.y);
+            
                 // If the terrain was found
                 if (terrainIndex != -1)
                 {
@@ -1552,13 +1576,21 @@ namespace Course.Field
                     // Add the water modifier to the terrain tile
                     terrain[terrainIndex].modifiers.Add(TileModifier.Water);
                     
-                    // Make a holder for the river tile, WILL PROBS REMOVE THIS LATER
-                    // TODO: REMOVE RIVER FROM PLAYFIELD, ONLY USE WATER MODIFIER ON TERRAIN
-                    FieldTile riverTile = new FieldTile(terrain[terrainIndex].position, terrain[terrainIndex].tileType, terrain[terrainIndex].rotation);
-                    riverTile.AddModifier(TileModifier.Water);
-                    river.Add(riverTile);
+                    // Set the terrain rotation based on the rotation of the river tile if the terrain is not a slope
+                    if (terrain[terrainIndex].tileType != FieldTileType.Slope)
+                    {
+                        terrain[terrainIndex].rotation = riverPathTile.rotation;
+                    }
+                    
+                    // If the river path tile is a corner, set the terrain type to bend
+                    if (riverPathTile.tileType == FieldTileType.Corner)
+                    {
+                        terrain[terrainIndex].tileType = FieldTileType.Bend;
+                    }
                 }
             }
+            
+            river.AddRange(riverTiles);
         }
         
         // Returns the closest point from a list to a given point 
@@ -1611,6 +1643,59 @@ namespace Course.Field
             }
 
             return returnPoint;
+        }
+        
+        // Returns a path without any spurs
+        private List<Vector3Int> CleanPathSpurs(List<Vector3Int> path)
+        {
+            // Get all duplicate values
+            Dictionary<Vector3Int, int> elements = new Dictionary<Vector3Int, int>();
+            foreach (Vector3Int pathPosition in path)
+            {
+                if (!elements.ContainsKey(pathPosition))
+                {
+                    elements.Add(pathPosition, 1);
+                }
+                else
+                {
+                    elements[pathPosition]++;
+                }
+            }
+            
+            // Get any duplicated
+            bool hasDuplicates = false;
+            List<Vector3Int> duplicateElements = new List<Vector3Int>();
+            foreach (KeyValuePair<Vector3Int, int> element in elements)
+            {
+                if (element.Value > 1)
+                {
+                    duplicateElements.Add(element.Key);
+                    hasDuplicates = true;
+                }
+            }
+
+            if (hasDuplicates)
+            {
+                // For the first duplicate value, get the first and second duplicate index, remove everything in-between those values, minus the start value
+                List<Vector3Int> deSpurredPath = new List<Vector3Int>();
+                int cullStart = path.FindIndex(p => p == duplicateElements[0]) + 1;
+                int cullEnd = path.FindLastIndex(p => p == duplicateElements[0]);
+                for (int i = 0; i < path.Count; i++)
+                {
+                    if (!(i >= cullStart && i <= cullEnd))
+                    {
+                        deSpurredPath.Add(path[i]);
+                    }
+                }
+
+                path = deSpurredPath;
+            }
+
+            if (hasDuplicates)
+            {
+                path = CleanPathSpurs(path);
+            }
+            return path;
         }
         
         // Clears any flat terrain under the playfield hole

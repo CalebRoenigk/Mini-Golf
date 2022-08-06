@@ -27,10 +27,17 @@ namespace Course.Field
             {
                 int modifierValue = obstacleList.Key;
                 // For each point in this modifier group, set the modifier cost of this pathnode
-                foreach (Vector3Int obstacle in obstacleList.Value)
+                List<Vector3Int> obstaclesList = obstacleList.Value;
+                foreach (Vector3Int obstacle in obstaclesList)
                 {
-                    PathNode obstacleNode = GetNode(obstacle);
-                    obstacleNode.SetModifierCost(modifierValue);
+                    if (gridNodes.FindIndex(p => p.position == obstacle) != -1)
+                    {
+                        PathNode obstacleNode = GetNode(obstacle);
+                        if (obstacleNode.obstacleModifier < modifierValue)
+                        {
+                            obstacleNode.SetModifierCost(modifierValue);
+                        }
+                    }
                 }
             }
         }

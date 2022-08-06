@@ -147,6 +147,10 @@ namespace Course
                     foreach (FieldTile river in playfield.river)
                     {
                         Gizmos.color = Color.blue;
+                        if (river.tileType == FieldTileType.None)
+                        {
+                            Gizmos.color = Color.cyan;
+                        }
                         Gizmos.DrawCube(GridToWorld(river.position), new Vector3(1f, 0.5f, 1f));
                     }
                 }
@@ -170,7 +174,7 @@ namespace Course
             {
                 GameTile terrainObject = Instantiate(fieldTilePrefab, GridToWorld(terrainTile.position), Quaternion.identity, terrainParent).GetComponent<GameTile>();
                 FieldTileData terrainData = terrainTileData.Find(t => t.fieldTileType == terrainTile.tileType);
-                terrainObject.SetTile(terrainTile, terrainData.mesh, terrainMaterial);
+                Mesh terrainMesh = terrainData.mesh;
 
                 foreach (TileModifier modifier in terrainTile.modifiers)
                 {
@@ -185,7 +189,14 @@ namespace Course
                         decoObject.gameObject.tag = "Decoration";
                         gameTiles.Add(decoObject.gameObject);
                     }
+                    else
+                    {
+                        // River Placement
+                        terrainMesh = terrainData.fieldTileModiferData.Find(m => m.replacmentModifier == TileModifier.Water).mesh;
+                    }
                 }
+                
+                terrainObject.SetTile(terrainTile, terrainMesh, terrainMaterial);
                 
                 terrainObject.gameObject.tag = "Terrain";
                 gameTiles.Add(terrainObject.gameObject);
