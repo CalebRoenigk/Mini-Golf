@@ -60,10 +60,7 @@ namespace Course.Field
 
             // Then calculate the track tiles
             GenerateTrack(field);
-            
-            // Offset track as needed to properly slope the track
-            SmoothTrack();
-            
+
             // Manually clean the track
             ManualTrackClean();
             
@@ -909,55 +906,42 @@ namespace Course.Field
         // Casts the field positions to be directly above the terrain
         private List<Vector3Int> CastTrackToTerrain(List<Vector3Int> field)
         {
-            // Iterate over the field, casting each tile to 1 above the terrain at that location
-            int currentZ = 0;
-            int lastZ = 0;
-            List<Vector3Int> fieldCast = new List<Vector3Int>();
-            for (int i = 0; i < field.Count; i++)
+            // Generate the track as it stands
+            GenerateTrack(field);
+            
+            // Iterate down the track, for each track tile there can be a z level it is at
+            // That z level can change only when the track is straight
+            Vector3Int startPosition = field[0];
+            int currentZ = GetTerrainZ(startPosition) + 1;
+            List<Vector3Int> trackCasted = new List<Vector3Int>();
+            for (int i = 0; i < track.Count; i++)
             {
-                // Get the field position
-                Vector3Int fieldPosition = field[i];
-                
-                // Get the terrain z
-                int terrainZ = GetTerrainZ(fieldPosition);
-                
-                if (i == 0)
+                if (track[i].tileType == FieldTileType.Straight)
                 {
-                    // On the first tile, determine the current Z
-                    currentZ = terrainZ + 1;
-                    lastZ = currentZ;
-                }
-                else
-                {
-                    // Check if the terrain z is more than 1 higher or lower than the current z
-                    if ((int)Mathf.Abs((terrainZ + 1) - currentZ) > 1)
-                    {
-                        // Only increment the step down by 1
-                        int terrainZChange = (terrainZ + 1) - currentZ;
-                        currentZ += (terrainZChange / (int)Mathf.Abs(terrainZChange));
-                    }
-                    else
-                    { 
-                        // Store the new current z
-                        currentZ = terrainZ + 1;
-                    }
+                    // currentZ = GetTerrainZ(track[i].position) + 1;
+                    // Create the search area
+                    Vector3Int minSearch = track[i].position - Vector3Int.one;
+                    Vector3Int maxSearch = track[i].position + Vector3Int.one;
+                    BoundsInt search = new BoundsInt();
+                    search.SetMinMax(minSearch, maxSearch);
+                    search.zMin = track[i].position.z;
+                    search.zMax = track[i].position.z + 1;
+                    
+                    // Search for the max z
+                    currentZ = GetMaxTerrainZ(track[i].position, search) + 1;
                 }
 
-                // // Add an extra position at the last z if the z has changed
-                // if (lastZ != currentZ)
-                // {
-                //     fieldCast.Add(new Vector3Int(fieldPosition.x, fieldPosition.y, lastZ));
-                // }
-                
-                // Store the new field tile to the cast list
-                fieldCast.Add(new Vector3Int(fieldPosition.x, fieldPosition.y, currentZ));
-
-                lastZ = currentZ;
+                Vector3Int castPosition = track[i].position;
+                castPosition.z = currentZ;
+                trackCasted.Add(castPosition);
             }
             
-            return fieldCast;
+            // Clear the created track
+            track.Clear();
+
+            return trackCasted;
         }
-        
+
         // Returns the z of the terrain given a position
         private int GetTerrainZ(Vector3Int position)
         {
@@ -972,6 +956,20 @@ namespace Course.Field
             }
 
             return position.z;
+        }
+        
+        // Returns the max z of the terrain given a position within a given radius
+        private int GetMaxTerrainZ(Vector3Int position, BoundsInt search)
+        {
+            List<int> terrainSamples = new List<int>();
+            // Iterate over the terrain samples
+            foreach (Vector3Int searchPosition in search.allPositionsWithin)
+            {
+                terrainSamples.Add(GetTerrainZ(searchPosition));
+            }
+            
+            // Get the max sample height
+            return terrainSamples.Max(t => t);
         }
 
         // Generate track for the playfield
@@ -1354,94 +1352,7 @@ namespace Course.Field
 
             return false;
         }
-        
-        // Smooths the jagged edges in the track out
-        private void SmoothTrack(int countLeft = 31)
-        {
-            List<Vector3Int> smoothTrack = new List<Vector3Int>();
-            Dictionary<int, Vector3Int> smoothedTiles = new Dictionary<int, Vector3Int>();
-            bool didSmooth = false;
-            bool smoothPrevious = countLeft % 2 == 0;
-            for (int i = 0; i < track.Count; i++)
-            {
-                FieldTile currentTrack = track[i];
 
-                // Determine which smoothing order to do
-                if (smoothPrevious)
-                {
-                    // Get the current and next track tile
-                    if (i < track.Count - 1)
-                    {
-                        FieldTile nextTrack = track[i + 1];
-                    
-                        // If the next track is a different z then this one and the track tile type isnt a slope
-                        if (nextTrack.position.z < currentTrack.position.z && !didSmooth)
-                        {
-                            if (nextTrack.tileType != FieldTileType.Slope)
-                            {
-                                // The next track should be offset
-                                Vector3Int nextPosition = nextTrack.position;
-                                nextPosition.z = currentTrack.position.z;
-                                smoothedTiles.Add(i + 1, nextPosition);
-                                didSmooth = true;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    // Get the current and previous track tile
-                    if (i > 0)
-                    {
-                        FieldTile previousTrack = track[i - 1];
-                    
-                        // If the previous track is a different z then this one and the track tile type isnt a slope
-                        if (previousTrack.position.z < currentTrack.position.z && !didSmooth)
-                        {
-                            if (currentTrack.tileType != FieldTileType.Slope)
-                            {
-                                // The previous track should be offset
-                                Vector3Int previousPosition = previousTrack.position;
-                                previousPosition.z = currentTrack.position.z;
-                                smoothedTiles.Add(i - 1, previousPosition);
-                                didSmooth = true;
-                            }
-                        }
-                    }
-                }
-                
-            }
-
-            // Create the smooth track
-            for (int i = 0; i < track.Count; i++)
-            {
-                if (smoothedTiles.ContainsKey(i))
-                {
-                    smoothTrack.Add(smoothedTiles[i]);
-                }
-                else
-                {
-                    smoothTrack.Add(track[i].position);
-                }
-            }
-            
-            // Clear the old track
-            track.Clear();
-            
-            // Generate the track again
-            GenerateTrack(smoothTrack);
-
-            countLeft--;
-
-            if (countLeft > 0)
-            {
-                if (didSmooth)
-                {
-                    SmoothTrack(countLeft);
-                }
-            }
-        }
-        
         // Manually adjusts the track where needed
         private void ManualTrackClean()
         {
