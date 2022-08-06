@@ -25,16 +25,7 @@ namespace Course.Field
         // Playfield Tiles
         public List<FieldTile> terrain = new List<FieldTile>();
         public List<FieldTile> track = new List<FieldTile>();
-
-        // OLD
         
-        
-        // public List<Vector3Int> field = new List<Vector3Int>();
-        public List<FieldTile> tiles = new List<FieldTile>();
-        // public List<Vector3Int> terrain = new List<Vector3Int>();
-        public List<Vector3Int> deco = new List<Vector3Int>();
-        
-
         public Playfield()
         {
             
@@ -62,31 +53,33 @@ namespace Course.Field
             // Then cast the field down towards the terrain
             field = CastTrackToTerrain(field);
             
+            // Make sure the last field tile is on the same z as the previous
+            Vector3Int lastPosition = field[field.Count - 1];
+            lastPosition.z = field[field.Count - 2].z;
+            field[field.Count - 1] = lastPosition;
+            
+            // Extend the end one more in the current moving direction
+            lastPosition = field[field.Count - 1];
+            Vector3Int penultimatePosition = field[field.Count - 2];
+            Vector3Int endDirection = lastPosition - penultimatePosition;
+            field.Add(lastPosition + endDirection);
+            
             // Then calculate the track tiles
             GenerateTrack(field);
             
+            // Offset track as needed to properly slope the track
+            SmoothTrack();
+            
+            // Manually clean the track
+            ManualTrackClean();
+            
             // Remove deco below any track
             CleanDeco();
-
-            // Store the tiles
-            // Need to create a start and end Vector3Int
-
-            // Remove any deco that is occupied by tiles
+            
+            // Store the end
+            end = track[track.Count - 1].position;
         }
-        
-        // public Playfield(List<Vector3Int> field, Vector3Int start, Vector3Int end, List<Vector3Int> terrain, int seed, ModifierSettings modifierSettings)
-        // {
-        //     this.field = field;
-        //     this.start = start;
-        //     this.spawn = GridToWorld(start) + new Vector3(0f, 0.25f, 0f);
-        //     this.end = end;
-        //     this.terrain = terrain;
-        //     this.modifierSettings = modifierSettings;
-        //     
-        //     GenerateTiles(seed);
-        //     GenerateDeco(seed);
-        // }
-        
+
         // Returns the field locations for the playfield
         private List<Vector3Int> GenerateField()
         {
@@ -947,14 +940,14 @@ namespace Course.Field
         // Returns the z of the terrain given a position
         private int GetTerrainZ(Vector3Int position)
         {
-            FieldTile terrainTile = terrain.Find(t => t.position.x == position.x && t.position.y == position.y);
-            if (terrainTile.position != null)
+            int terrainTileIndex = terrain.FindIndex(t => t.position.x == position.x && t.position.y == position.y);
+            if (terrainTileIndex != -1)
             {
-                if (terrainTile.tileType == FieldTileType.Flat)
+                if (terrain[terrainTileIndex].tileType == FieldTileType.Flat)
                 {
-                    return terrainTile.position.z - 1;
+                    return terrain[terrainTileIndex].position.z - 1;
                 }
-                return terrainTile.position.z;
+                return terrain[terrainTileIndex].position.z;
             }
 
             return position.z;
@@ -1047,7 +1040,7 @@ namespace Course.Field
             }
             
             // End point
-            if (totalNeighborCount == 1)
+            if (IsTrackEnd(neighborDirections))
             {
                 return FieldTileType.End;
             }
@@ -1077,13 +1070,18 @@ namespace Course.Field
         private int GetTrackRotation(List<Vector3Int> neighborDirections, int totalNeighborCount)
         {
             // Directions
-            bool negX = neighborDirections.FindIndex(d => d.x == -1 && d.y == 0) != -1;
-            bool posX = neighborDirections.FindIndex(d => d.x == 1 && d.y == 0) != -1;
-            bool negY = neighborDirections.FindIndex(d => d.y == -1 && d.x == 0) != -1;
-            bool posY = neighborDirections.FindIndex(d => d.y == 1 && d.x == 0) != -1;
+            int negXIndex = neighborDirections.FindIndex(d => d.x == -1 && d.y == 0);
+            int posXIndex = neighborDirections.FindIndex(d => d.x == 1 && d.y == 0);
+            int negYIndex = neighborDirections.FindIndex(d => d.y == -1 && d.x == 0);
+            int posYIndex = neighborDirections.FindIndex(d => d.y == 1 && d.x == 0);
+            
+            bool negX = negXIndex != -1;
+            bool posX = posXIndex != -1;
+            bool negY = negYIndex != -1;
+            bool posY = posYIndex != -1;
             
             // End rotation
-            if (totalNeighborCount == 1)
+            if (IsTrackEnd(neighborDirections))
             {
                 if (negY)
                 {
@@ -1106,9 +1104,44 @@ namespace Course.Field
                     return -90;
                 }
             }
+            
+            // Slope Rotation
+            bool isSloping = false;
+            if (negXIndex != -1 && posXIndex != -1)
+            {
+                // X- X+
+                if (neighborDirections[negXIndex].z == 1)
+                {
+                    // X-
+                    return 90;
+                    isSloping = true;
+                }
+                if (neighborDirections[posXIndex].z == 1)
+                {
+                    // X+
+                    return -90;
+                    isSloping = true;
+                }
+            }
+            if (negYIndex != -1 && posYIndex != -1)
+            {
+                // Y- Y+
+                if (neighborDirections[negYIndex].z == 1)
+                {
+                    // Y-
+                    return 0;
+                    isSloping = true;
+                }
+                if (neighborDirections[posYIndex].z == 1)
+                {
+                    // Y+
+                    return 180;
+                    isSloping = true;
+                }
+            }
 
             // Straight rotation
-            if (IsTrackStraight(neighborDirections))
+            if (IsTrackStraight(neighborDirections) && !isSloping)
             {
                 if (negX && posX)
                 {
@@ -1175,6 +1208,39 @@ namespace Course.Field
         }
         
         // Returns a bool denoting if the track neighbors are straight
+        private bool IsTrackEnd(List<Vector3Int> neighborDirections)
+        {
+            // Only a single neighbor
+            if (neighborDirections.Count == 1)
+            {
+                return true;
+            }
+            
+            bool negX = neighborDirections.FindIndex(d => d.x == -1 && d.y == 0) != -1;
+            bool posX = neighborDirections.FindIndex(d => d.x == 1 && d.y == 0) != -1;
+            bool negY = neighborDirections.FindIndex(d => d.y == -1 && d.x == 0) != -1;
+            bool posY = neighborDirections.FindIndex(d => d.y == 1 && d.x == 0) != -1;
+
+            List<bool> directNeighbors = new List<bool>() { negX, posX, negY, posY };
+            int countDirect = 0;
+
+            foreach (bool directNeighbor in directNeighbors)
+            {
+                if (directNeighbor)
+                {
+                    countDirect++;
+                }
+            }
+
+            if (countDirect == 1)
+            {
+                return true;
+            }
+
+            return false;
+        }
+        
+        // Returns a bool denoting if the track neighbors are straight
         private bool IsTrackStraight(List<Vector3Int> neighborDirections)
         {
             bool negX = neighborDirections.FindIndex(d => d.x == -1 && d.y == 0) != -1;
@@ -1231,33 +1297,132 @@ namespace Course.Field
         // Returns a bool denoting if the track neighbors are straight
         private bool IsTrackSlope(List<Vector3Int> neighborDirections)
         {
-            bool negX = neighborDirections.FindIndex(d => d.x == -1 && d.y == 0 && d.z != 0) != -1;
-            bool posX = neighborDirections.FindIndex(d => d.x == 1 && d.y == 0 && d.z != 0) != -1;
-            bool negY = neighborDirections.FindIndex(d => d.y == -1 && d.x == 0 && d.z != 0) != -1;
-            bool posY = neighborDirections.FindIndex(d => d.y == 1 && d.x == 0 && d.z != 0) != -1;
+            int negXIndex = neighborDirections.FindIndex(d => d.x == -1 && d.y == 0);
+            int posXIndex = neighborDirections.FindIndex(d => d.x == 1 && d.y == 0);
+            int negYIndex = neighborDirections.FindIndex(d => d.y == -1 && d.x == 0);
+            int posYIndex = neighborDirections.FindIndex(d => d.y == 1 && d.x == 0);
             
-            if (negX && posX)
+            if (negXIndex != -1 && posXIndex != -1)
             {
                 // X- X+
-                return true;
+                if (neighborDirections[negXIndex].z == 1)
+                {
+                    // X-
+                    return true;
+                }
+                if (neighborDirections[posXIndex].z == 1)
+                {
+                    // X+
+                    return true;
+                }
             }
-            if (negY && posY)
+            if (negYIndex != -1 && posYIndex != -1)
             {
                 // Y- Y+
-                return true;
+                if (neighborDirections[negYIndex].z == 1)
+                {
+                    // Y-
+                    return true;
+                }
+                if (neighborDirections[posYIndex].z == 1)
+                {
+                    // Y+
+                    return true;
+                }
             }
 
             return false;
         }
         
+        // Smooths the jagged edges in the track out
+        private void SmoothTrack(int countLeft = 12)
+        {
+            List<Vector3Int> smoothTrack = new List<Vector3Int>();
+            Dictionary<int, Vector3Int> smoothedTiles = new Dictionary<int, Vector3Int>();
+            bool didSmooth = false;
+            for (int i = 0; i < track.Count; i++)
+            {
+                FieldTile currentTrack = track[i];
+
+                // Get the current and next track tile
+                if (i < track.Count - 1)
+                {
+                    FieldTile nextTrack = track[i + 1];
+                    
+                    // If the next track is a different z then this one and the track tile type isnt a slope
+                    if (nextTrack.position.z < currentTrack.position.z && !didSmooth)
+                    {
+                        if (nextTrack.tileType != FieldTileType.Slope)
+                        {
+                            // The next track should be offset
+                            Vector3Int nextPosition = nextTrack.position;
+                            nextPosition.z = currentTrack.position.z;
+                            smoothedTiles.Add(i + 1, nextPosition);
+                            didSmooth = true;
+                        }
+                    }
+                }
+            }
+
+            // Create the smooth track
+            for (int i = 0; i < track.Count; i++)
+            {
+                if (smoothedTiles.ContainsKey(i))
+                {
+                    smoothTrack.Add(smoothedTiles[i]);
+                }
+                else
+                {
+                    smoothTrack.Add(track[i].position);
+                }
+            }
+            
+            // Clear the old track
+            track.Clear();
+            
+            // Generate the track again
+            GenerateTrack(smoothTrack);
+
+            countLeft--;
+
+            if (countLeft > 0)
+            {
+                if (didSmooth)
+                {
+                    SmoothTrack(countLeft);
+                }
+            }
+        }
+        
+        // Manually adjusts the track where needed
+        private void ManualTrackClean()
+        {
+            // Check over the entire track
+            for (int i = 1; i < track.Count - 1; i++)
+            {
+                FieldTile previousTile = track[i - 1];
+                FieldTile currentTile = track[i];
+                FieldTile nextTile = track[i + 1];
+
+                // Fixes random slopes placed in between two flat straights
+                if ((previousTile.tileType == FieldTileType.Straight && nextTile.tileType == FieldTileType.Straight) && (previousTile.position.z == nextTile.position.z) && (previousTile.rotation == nextTile.rotation))
+                {
+                    if (currentTile.tileType != FieldTileType.Straight)
+                    {
+                        currentTile.position.z = previousTile.position.z;
+                        currentTile.tileType = FieldTileType.Straight;
+                    }
+                }
+            }
+        }
+
         // Removes any deco modifers directly below any track
         private void CleanDeco()
         {
             // Iterate over each track
             foreach (FieldTile trackTile in track)
             {
-                Vector3Int tileBelowPosition = trackTile.position;
-                int terrainIndex = terrain.FindIndex(t => t.position == tileBelowPosition);
+                int terrainIndex = terrain.FindIndex(t => t.position.x == trackTile.position.x && t.position.y == trackTile.position.y);
                 
                 if (terrainIndex != -1)
                 {

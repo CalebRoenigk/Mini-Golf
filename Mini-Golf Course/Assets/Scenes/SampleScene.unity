@@ -876,7 +876,6 @@ MonoBehaviour:
                       m_Size: {x: 0, y: 0, z: 0}
                     start: {x: 0, y: 0, z: 0}
                     end: {x: 0, y: 0, z: 0}
-                    deco: []
                   terrainScale: 0
                   terrainHeight: 0
                   terrainMargin: 0
@@ -895,7 +894,6 @@ MonoBehaviour:
                   m_Size: {x: 0, y: 0, z: 0}
                 start: {x: 0, y: 0, z: 0}
                 end: {x: 0, y: 0, z: 0}
-                deco: []
               terrainScale: 0
               terrainHeight: 0
               terrainMargin: 0
@@ -914,7 +912,6 @@ MonoBehaviour:
               m_Size: {x: 0, y: 0, z: 0}
             start: {x: 0, y: 0, z: 0}
             end: {x: 0, y: 0, z: 0}
-            deco: []
           terrainScale: 0
           terrainHeight: 0
           terrainMargin: 0
@@ -933,7 +930,6 @@ MonoBehaviour:
           m_Size: {x: 0, y: 0, z: 0}
         start: {x: 0, y: 0, z: 0}
         end: {x: 0, y: 0, z: 0}
-        deco: []
       terrainScale: 0
       terrainHeight: 0
       terrainMargin: 0
@@ -952,7 +948,6 @@ MonoBehaviour:
       m_Size: {x: 0, y: 0, z: 0}
     start: {x: 0, y: 0, z: 0}
     end: {x: 0, y: 0, z: 0}
-    deco: []
   gameTilePrefab: {fileID: 1220470970535892180, guid: 452c0eca9edde4ce98842e45453a756e,
     type: 3}
   decoPrefabs:

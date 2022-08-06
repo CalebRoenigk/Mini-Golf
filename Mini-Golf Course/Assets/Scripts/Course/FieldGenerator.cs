@@ -99,8 +99,16 @@ namespace Course
                     {
                         case FieldTileType.None:
                             Gizmos.color = Color.blue;
-                            Gizmos.DrawCube(GridToWorld(track.position), new Vector3(1f, 0.5f, 1f));
+                            if (track.position.z == 1)
+                            {
+                                Gizmos.color = Color.green;
+                            }
+                            // Gizmos.DrawCube(GridToWorld(track.position), new Vector3(1f, 0.5f, 1f));
                             Gizmos.color = Color.cyan;
+                            if (track.position.z == 1)
+                            {
+                                Gizmos.color = Color.yellow;
+                            }
                             Gizmos.DrawWireCube(GridToWorld(track.position), new Vector3(1f, 0.5f, 1f));
                             break;
                         default:
@@ -138,13 +146,13 @@ namespace Course
         // Creates deco objects for the level
         private void InstantiateDeco()
         {
-            foreach (Vector3Int decoPoint in playfield.deco)
-            {
-                GameObject deco = Instantiate(decoPrefabs[0], GridToWorld(decoPoint), Quaternion.identity);
-                deco.transform.eulerAngles = new Vector3(0f, 0f, 0f);
-                
-                gameTiles.Add(deco);
-            }
+            // foreach (Vector3Int decoPoint in playfield.deco)
+            // {
+            //     GameObject deco = Instantiate(decoPrefabs[0], GridToWorld(decoPoint), Quaternion.identity);
+            //     deco.transform.eulerAngles = new Vector3(0f, 0f, 0f);
+            //     
+            //     gameTiles.Add(deco);
+            // }
         }
         
         // Removes the level tiles
