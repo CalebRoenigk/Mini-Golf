@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Course.Field
 {
+    [System.Serializable]
     public class FieldTile
     {
         public Vector3Int position;

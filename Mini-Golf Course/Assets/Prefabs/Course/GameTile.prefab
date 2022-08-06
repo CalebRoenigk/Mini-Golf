@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 167463028334741702}
   m_Layer: 0
   m_Name: GameTile
-  m_TagString: Terrain
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -63,8 +63,7 @@ MeshRenderer:
   m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 2100000, guid: 44c650d4060f8444db5da464f4c021b5, type: 2}
+  m_Materials: []
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -128,22 +127,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64d8883f27d7b43589f7449a4edfb70a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  meshes:
-  - {fileID: -1713572069868522086, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
-  - {fileID: 107353918992496832, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
-  - {fileID: 4548856523704028987, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
-  - {fileID: 395867661652627741, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
-  - {fileID: 4881706324658852044, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
-  - {fileID: -8468544127871422397, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
-  - {fileID: 4391874447215336391, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
-  - {fileID: -7446973482673724422, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
-  - {fileID: 7403023356969468577, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
-  - {fileID: 7288914446582604333, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
-  - {fileID: 1918644232014397273, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
-  props:
-  - {fileID: 1921835125828288462, guid: 60669ce5b039b406d8c18a4a260b7662, type: 3}
-  tileDirection: 0
-  tileModifers: 
-  gridPosition: {x: 0, y: 0, z: 0}
+  fieldTile:
+    position: {x: 0, y: 0, z: 0}
+    tileType: 0
+    rotation: 0
+    modifiers: 
+  renderer: {fileID: 1433067694779172815}
   meshFilter: {fileID: 619681601300146577}
   meshCollider: {fileID: 4951805210704074299}

@@ -909,6 +909,8 @@ MonoBehaviour:
                       m_Size: {x: 0, y: 0, z: 0}
                     start: {x: 0, y: 0, z: 0}
                     end: {x: 0, y: 0, z: 0}
+                    terrain: []
+                    track: []
                   terrainScale: 0
                   terrainHeight: 0
                   terrainMargin: 0
@@ -927,6 +929,8 @@ MonoBehaviour:
                   m_Size: {x: 0, y: 0, z: 0}
                 start: {x: 0, y: 0, z: 0}
                 end: {x: 0, y: 0, z: 0}
+                terrain: []
+                track: []
               terrainScale: 0
               terrainHeight: 0
               terrainMargin: 0
@@ -945,6 +949,8 @@ MonoBehaviour:
               m_Size: {x: 0, y: 0, z: 0}
             start: {x: 0, y: 0, z: 0}
             end: {x: 0, y: 0, z: 0}
+            terrain: []
+            track: []
           terrainScale: 0
           terrainHeight: 0
           terrainMargin: 0
@@ -963,6 +969,8 @@ MonoBehaviour:
           m_Size: {x: 0, y: 0, z: 0}
         start: {x: 0, y: 0, z: 0}
         end: {x: 0, y: 0, z: 0}
+        terrain: []
+        track: []
       terrainScale: 0
       terrainHeight: 0
       terrainMargin: 0
@@ -981,32 +989,48 @@ MonoBehaviour:
       m_Size: {x: 0, y: 0, z: 0}
     start: {x: 0, y: 0, z: 0}
     end: {x: 0, y: 0, z: 0}
+    terrain: []
+    track: []
   terrainParent: {fileID: 2113258124}
   trackParent: {fileID: 1664791535}
   terrainTileData:
   - fieldTileType: 1
     mesh: {fileID: 195369175416034054, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
+    fieldTileModiferData: []
   - fieldTileType: 2
     mesh: {fileID: 5797273022398963634, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
+    fieldTileModiferData: []
   - fieldTileType: 3
     mesh: {fileID: -7420860524048880844, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
+    fieldTileModiferData: []
   - fieldTileType: 4
     mesh: {fileID: -8104979325612622895, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
+    fieldTileModiferData: []
   trackTileData:
   - fieldTileType: 6
     mesh: {fileID: -1713572069868522086, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
+    fieldTileModiferData: []
   - fieldTileType: 8
     mesh: {fileID: 107353918992496832, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
+    fieldTileModiferData:
+    - replacmentModifier: 8
+      mesh: {fileID: 4548856523704028987, guid: 08c4b049c9def4cd0acc0b80b25da959,
+        type: 3}
   - fieldTileType: 7
     mesh: {fileID: 395867661652627741, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
+    fieldTileModiferData: []
   - fieldTileType: 4
     mesh: {fileID: 4391874447215336391, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
+    fieldTileModiferData: []
   - fieldTileType: 2
     mesh: {fileID: -7446973482673724422, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
+    fieldTileModiferData: []
   - fieldTileType: 9
     mesh: {fileID: 7288914446582604333, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
+    fieldTileModiferData: []
   - fieldTileType: 10
     mesh: {fileID: 1918644232014397273, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
+    fieldTileModiferData: []
   decoTileData:
   - tileModifer: 10
     meshes:
@@ -1031,6 +1055,8 @@ MonoBehaviour:
     - {r: 0.60784316, g: 0.67058825, b: 0.69803923, a: 1}
     - {r: 0.6627451, g: 0.7294118, b: 0.74509805, a: 1}
     - {r: 0.60784316, g: 0.65882355, b: 0.7058824, a: 1}
+  trackMaterial: {fileID: 2100000, guid: 44c650d4060f8444db5da464f4c021b5, type: 2}
+  terrainMaterial: {fileID: 2100000, guid: 0e30d91f0eb1a4efaa8a7ec2d5e3a352, type: 2}
   fieldTilePrefab: {fileID: 1220470970535892180, guid: 452c0eca9edde4ce98842e45453a756e,
     type: 3}
   decoTilePrefab: {fileID: 1220470970535892180, guid: a826470cc6ea4428ca45e84a284daa7b,

@@ -39,7 +39,7 @@ namespace Course.Field
             this.level = level;
             
             // Store a new field settings object
-            fieldSettings = new FieldSettings(this, 0.125f, 0.25f);
+            fieldSettings = new FieldSettings(this, 0.075f, 0.25f);
             
             // Generate the field and the bounds of the level
             List<Vector3Int> field = GenerateField();
@@ -57,13 +57,7 @@ namespace Course.Field
             Vector3Int lastPosition = field[field.Count - 1];
             lastPosition.z = field[field.Count - 2].z;
             field[field.Count - 1] = lastPosition;
-            
-            // // Extend the end one more in the current moving direction
-            // lastPosition = field[field.Count - 1];
-            // Vector3Int penultimatePosition = field[field.Count - 2];
-            // Vector3Int endDirection = lastPosition - penultimatePosition;
-            // field.Add(lastPosition + endDirection);
-            
+
             // Then calculate the track tiles
             GenerateTrack(field);
             
@@ -76,8 +70,17 @@ namespace Course.Field
             // Remove deco below any track
             CleanDeco();
             
+            // Add a river to the the terrain
+            // TODO: ADD RIVER TO TERRAIN
+            
             // Store the end
             end = track[track.Count - 1].position;
+            
+            // Add the hole modifier to the end tile
+            track[track.Count - 1].modifiers.Add(TileModifier.Hole);
+            
+            // Remove flat terrain under the hole
+            ClearUnderHole();
         }
 
         // Returns the field locations for the playfield
@@ -1335,7 +1338,7 @@ namespace Course.Field
         }
         
         // Smooths the jagged edges in the track out
-        private void SmoothTrack(int countLeft = 12)
+        private void SmoothTrack(int countLeft = 32)
         {
             List<Vector3Int> smoothTrack = new List<Vector3Int>();
             Dictionary<int, Vector3Int> smoothedTiles = new Dictionary<int, Vector3Int>();
@@ -1428,6 +1431,16 @@ namespace Course.Field
                 {
                     terrain[terrainIndex].modifiers.Clear();
                 }
+            }
+        }
+        
+        // Clears any flat terrain under the playfield hole
+        private void ClearUnderHole()
+        {
+            int terrainIndex = terrain.FindIndex(t => t.position == end);   
+            if (terrainIndex != -1)
+            {
+                terrain.Remove(terrain[terrainIndex]);
             }
         }
     }

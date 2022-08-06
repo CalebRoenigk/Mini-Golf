@@ -6,10 +6,9 @@ using UnityEngine;
 namespace Course
 {
     [System.Serializable]
-    public struct FieldTileData
+    public struct FieldTileModifierData
     {
-        public FieldTileType fieldTileType;
+        public TileModifier replacmentModifier;
         public Mesh mesh;
-        public List<FieldTileModifierData> fieldTileModiferData;
     }
 }

@@ -35,6 +35,8 @@ namespace Course
         [SerializeField] private List<FieldTileData> terrainTileData = new List<FieldTileData>();
         [SerializeField] private List<FieldTileData> trackTileData = new List<FieldTileData>();
         [SerializeField] private List<DecoTileData> decoTileData = new List<DecoTileData>();
+        [SerializeField] private Material trackMaterial;
+        [SerializeField] private Material terrainMaterial;
 
         [Header("Game")]
         [SerializeField] private GameObject fieldTilePrefab;
@@ -158,7 +160,8 @@ namespace Course
             foreach (FieldTile terrainTile in playfield.terrain)
             {
                 GameTile terrainObject = Instantiate(fieldTilePrefab, GridToWorld(terrainTile.position), Quaternion.identity, terrainParent).GetComponent<GameTile>();
-                terrainObject.SetTile(terrainTile, terrainTileData.Find(t => t.fieldTileType == terrainTile.tileType).mesh);
+                FieldTileData terrainData = terrainTileData.Find(t => t.fieldTileType == terrainTile.tileType);
+                terrainObject.SetTile(terrainTile, terrainData.mesh, terrainMaterial);
 
                 foreach (TileModifier modifier in terrainTile.modifiers)
                 {
@@ -168,18 +171,30 @@ namespace Course
                     Mesh mesh = data.meshes[(int)Mathf.Floor(Random.Range(0, data.meshes.Count))];
                     decoObject.SetTile(modifier, color, mesh, data.material);
 
+                    decoObject.gameObject.tag = "Deco";
                     gameTiles.Add(decoObject.gameObject);
                 }
-
+                
+                terrainObject.gameObject.tag = "Terrain";
                 gameTiles.Add(terrainObject.gameObject);
             }
             
             // Create the track
             foreach (FieldTile trackTile in playfield.track)
             {
-                GameTile trackObject = Instantiate(fieldTilePrefab, GridToWorld(trackTile.position), Quaternion.identity, trackParent).GetComponent<GameTile>();
-                trackObject.SetTile(trackTile, trackTileData.Find(t => t.fieldTileType == trackTile.tileType).mesh);
+                GameTile trackObject = Instantiate(fieldTilePrefab, GridToWorld(trackTile.position) + new Vector3(0f, 0.01f, 0f), Quaternion.identity, trackParent).GetComponent<GameTile>();
+                FieldTileData data = trackTileData.Find(t => t.fieldTileType == trackTile.tileType);
+                Mesh mesh = data.mesh;
+                foreach (FieldTileModifierData tileModifier in data.fieldTileModiferData)
+                {
+                    if (trackTile.modifiers.Contains(tileModifier.replacmentModifier))
+                    {
+                        mesh = tileModifier.mesh;
+                    }
+                }
+                trackObject.SetTile(trackTile, mesh, trackMaterial);
                 
+                trackObject.gameObject.tag = "Track";
                 gameTiles.Add(trackObject.gameObject);
             }
         }
