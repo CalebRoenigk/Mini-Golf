@@ -6,7 +6,7 @@ TagManager:
   tags:
   - Terrain
   - Track
-  - Deco
+  - Decoration
   layers:
   - Default
   - TransparentFX

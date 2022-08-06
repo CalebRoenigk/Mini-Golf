@@ -895,6 +895,9 @@ MonoBehaviour:
                       terrainHeight: 0
                       terrainMargin: 0
                       decoChance: 0
+                      terrainRockChance: 0
+                      terrainBushChance: 0
+                      terrainTreeChance: 0
                       obstacleChance: 0
                       rockChance: 0
                       waterChance: 0
@@ -911,10 +914,14 @@ MonoBehaviour:
                     end: {x: 0, y: 0, z: 0}
                     terrain: []
                     track: []
+                    support: []
                   terrainScale: 0
                   terrainHeight: 0
                   terrainMargin: 0
                   decoChance: 0
+                  terrainRockChance: 0
+                  terrainBushChance: 0
+                  terrainTreeChance: 0
                   obstacleChance: 0
                   rockChance: 0
                   waterChance: 0
@@ -931,10 +938,14 @@ MonoBehaviour:
                 end: {x: 0, y: 0, z: 0}
                 terrain: []
                 track: []
+                support: []
               terrainScale: 0
               terrainHeight: 0
               terrainMargin: 0
               decoChance: 0
+              terrainRockChance: 0
+              terrainBushChance: 0
+              terrainTreeChance: 0
               obstacleChance: 0
               rockChance: 0
               waterChance: 0
@@ -951,10 +962,14 @@ MonoBehaviour:
             end: {x: 0, y: 0, z: 0}
             terrain: []
             track: []
+            support: []
           terrainScale: 0
           terrainHeight: 0
           terrainMargin: 0
           decoChance: 0
+          terrainRockChance: 0
+          terrainBushChance: 0
+          terrainTreeChance: 0
           obstacleChance: 0
           rockChance: 0
           waterChance: 0
@@ -971,10 +986,14 @@ MonoBehaviour:
         end: {x: 0, y: 0, z: 0}
         terrain: []
         track: []
+        support: []
       terrainScale: 0
       terrainHeight: 0
       terrainMargin: 0
       decoChance: 0
+      terrainRockChance: 0
+      terrainBushChance: 0
+      terrainTreeChance: 0
       obstacleChance: 0
       rockChance: 0
       waterChance: 0
@@ -991,6 +1010,7 @@ MonoBehaviour:
     end: {x: 0, y: 0, z: 0}
     terrain: []
     track: []
+    support: []
   terrainParent: {fileID: 2113258124}
   trackParent: {fileID: 1664791535}
   terrainTileData:
@@ -1031,6 +1051,19 @@ MonoBehaviour:
   - fieldTileType: 10
     mesh: {fileID: 1918644232014397273, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
     fieldTileModiferData: []
+  supportTileData:
+  - fieldTileType: 1
+    mesh: {fileID: -1732934669219387662, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
+    fieldTileModiferData:
+    - replacmentModifier: 12
+      mesh: {fileID: 2942685948965727005, guid: 08c4b049c9def4cd0acc0b80b25da959,
+        type: 3}
+  - fieldTileType: 4
+    mesh: {fileID: 2001077218135968365, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
+    fieldTileModiferData:
+    - replacmentModifier: 12
+      mesh: {fileID: 7122468301841916725, guid: 08c4b049c9def4cd0acc0b80b25da959,
+        type: 3}
   decoTileData:
   - tileModifer: 10
     meshes:
@@ -1056,6 +1089,7 @@ MonoBehaviour:
     - {r: 0.6627451, g: 0.7294118, b: 0.74509805, a: 1}
     - {r: 0.60784316, g: 0.65882355, b: 0.7058824, a: 1}
   trackMaterial: {fileID: 2100000, guid: 44c650d4060f8444db5da464f4c021b5, type: 2}
+  supportMaterial: {fileID: 2100000, guid: 7824af50780dc46b8943041c4a144037, type: 2}
   terrainMaterial: {fileID: 2100000, guid: 0e30d91f0eb1a4efaa8a7ec2d5e3a352, type: 2}
   fieldTilePrefab: {fileID: 1220470970535892180, guid: 452c0eca9edde4ce98842e45453a756e,
     type: 3}

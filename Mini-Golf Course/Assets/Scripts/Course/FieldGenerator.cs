@@ -34,8 +34,10 @@ namespace Course
         [Header("Data")]
         [SerializeField] private List<FieldTileData> terrainTileData = new List<FieldTileData>();
         [SerializeField] private List<FieldTileData> trackTileData = new List<FieldTileData>();
+        [SerializeField] private List<FieldTileData> supportTileData = new List<FieldTileData>();
         [SerializeField] private List<DecoTileData> decoTileData = new List<DecoTileData>();
         [SerializeField] private Material trackMaterial;
+        [SerializeField] private Material supportMaterial;
         [SerializeField] private Material terrainMaterial;
 
         [Header("Game")]
@@ -171,7 +173,7 @@ namespace Course
                     Mesh mesh = data.meshes[(int)Mathf.Floor(Random.Range(0, data.meshes.Count))];
                     decoObject.SetTile(modifier, color, mesh, data.material);
 
-                    decoObject.gameObject.tag = "Deco";
+                    decoObject.gameObject.tag = "Decoration";
                     gameTiles.Add(decoObject.gameObject);
                 }
                 
@@ -196,6 +198,25 @@ namespace Course
                 
                 trackObject.gameObject.tag = "Track";
                 gameTiles.Add(trackObject.gameObject);
+            }
+            
+            // Create the supports
+            foreach (FieldTile supportTile in playfield.support)
+            {
+                GameTile supportObject = Instantiate(fieldTilePrefab, GridToWorld(supportTile.position) + new Vector3(0f, 0.01f, 0f), Quaternion.identity, trackParent).GetComponent<GameTile>();
+                FieldTileData data = supportTileData.Find(t => t.fieldTileType == supportTile.tileType);
+                Mesh mesh = data.mesh;
+                foreach (FieldTileModifierData tileModifier in data.fieldTileModiferData)
+                {
+                    if (supportTile.modifiers.Contains(tileModifier.replacmentModifier))
+                    {
+                        mesh = tileModifier.mesh;
+                    }
+                }
+                supportObject.SetTile(supportTile, mesh, supportMaterial);
+                
+                supportObject.gameObject.tag = "Decoration";
+                gameTiles.Add(supportObject.gameObject);
             }
         }
 

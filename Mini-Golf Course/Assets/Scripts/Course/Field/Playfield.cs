@@ -25,6 +25,7 @@ namespace Course.Field
         // Playfield Tiles
         public List<FieldTile> terrain = new List<FieldTile>();
         public List<FieldTile> track = new List<FieldTile>();
+        public List<FieldTile> support = new List<FieldTile>();
         
         public Playfield()
         {
@@ -78,6 +79,9 @@ namespace Course.Field
             
             // Remove flat terrain under the hole
             ClearUnderHole();
+            
+            // Generate the supports
+            GenerateSupports();
         }
 
         // Returns the field locations for the playfield
@@ -1399,5 +1403,93 @@ namespace Course.Field
                 terrain.Remove(terrain[terrainIndex]);
             }
         }
+        
+        // Generates the supports for the track
+        private void GenerateSupports()
+        {
+            // Iterate over each track tile
+            foreach (FieldTile trackTile in track)
+            {
+                // Get the distance to the ground
+                int distanceToGround = GetGroundDistance(trackTile);
+                // Check if the tile is sloping
+                bool isSloping = trackTile.tileType == FieldTileType.Slope;
+                
+                // Get the type of terrain under the track (returns -1 if the tile isn't flat because all other terrain tiles actually exist at distance to ground, not distance to ground - 1)
+                int terrainTypeBelow = terrain.FindIndex(t => t.position == (trackTile.position - new Vector3Int(0, 0, distanceToGround - 1)));
+
+                if (distanceToGround == 1 && terrainTypeBelow != -1 && trackTile.tileType != FieldTileType.Slope)
+                {
+                    // The terrain is touching the track, do nothing
+                    continue;
+                }
+                else
+                {
+                    // Create the list of supports for this tile
+                    List<FieldTile> supports = new List<FieldTile>();
+                    
+                    // Create a base tile for the supports
+                    FieldTile supportBase = new FieldTile(trackTile.position, isSloping ? FieldTileType.Slope : FieldTileType.Flat, trackTile.rotation);
+                    supportBase.AddModifier(TileModifier.Support);
+                    supportBase.AddModifier(TileModifier.Base);
+                    
+                    // Add the base support to the list of supports
+                    supports.Add(supportBase);
+                    
+                    // Add the special sloping support if the tile is sloping
+                    if (isSloping)
+                    {
+                        FieldTile supportSlope = new FieldTile(trackTile.position, FieldTileType.Slope, trackTile.rotation);
+                        supportSlope.AddModifier(TileModifier.Support);
+                        
+                        // Add the sloping support to the list of supports
+                        supports.Add(supportSlope);
+                    }
+                    
+                    // If the terrain tile is flat, subtract one from the distance to ground
+                    if (terrainTypeBelow != -1)
+                    {
+                        distanceToGround--;
+                    }
+
+                    // Iterate down towards the terrain, adding a support for each cell
+                    for (int i = 0; i < distanceToGround; i++)
+                    {
+                        // Get the support position
+                        Vector3Int supportPosition = trackTile.position - new Vector3Int(0, 0, i);
+                        
+                        // Create the support tile
+                        FieldTile supportTile = new FieldTile(supportPosition, FieldTileType.Flat, trackTile.rotation);
+                        supportTile.AddModifier(TileModifier.Support);
+                        
+                        // Add the support tile to the list of supports
+                        supports.Add(supportTile);
+                    }
+                    
+                    // Add the list of supports to the main support list
+                    support.AddRange(supports);
+                }
+            }
+        }
+        
+        // Returns the distance between a tile and the terrain underneath
+        private int GetGroundDistance(FieldTile tile)
+        {
+            // Get the height of the terrain
+            Vector3Int flattenedTilePosition = tile.position;
+            flattenedTilePosition.z = 99;
+            
+            int terrainHeight = GetTerrainZ(flattenedTilePosition);
+            if (terrainHeight == 99)
+            {
+                // The track is off the map, set the distance to the bounds
+                return bounds.size.z;
+            }
+            else
+            {
+                return tile.position.z - terrainHeight;
+            }
+        }
+        
     }
 }

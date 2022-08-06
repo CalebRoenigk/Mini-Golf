@@ -12,6 +12,8 @@ namespace Course.Field
         Hill,
         Hole,
         Tree,
-        Bush
+        Bush,
+        Support,
+        Base
     }
 }
