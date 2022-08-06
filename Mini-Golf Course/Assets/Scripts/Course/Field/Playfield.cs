@@ -24,6 +24,7 @@ namespace Course.Field
         
         // Playfield Tiles
         public List<FieldTile> terrain = new List<FieldTile>();
+        public List<FieldTile> river = new List<FieldTile>();
         public List<FieldTile> track = new List<FieldTile>();
         public List<FieldTile> support = new List<FieldTile>();
         
@@ -67,16 +68,16 @@ namespace Course.Field
             
             // Remove deco below any track
             CleanDeco();
-            
-            // Add a river to the the terrain
-            // TODO: ADD RIVER TO TERRAIN
-            
+
             // Store the end
             end = track[track.Count - 1].position;
             
+            // Add a river to the the terrain
+            GenerateRiver();
+            
             // Add the hole modifier to the end tile
             track[track.Count - 1].modifiers.Add(TileModifier.Hole);
-            
+
             // Remove flat terrain under the hole
             ClearUnderHole();
             
@@ -1392,6 +1393,168 @@ namespace Course.Field
                     terrain[terrainIndex].modifiers.Clear();
                 }
             }
+        }
+        
+        // Generates a river on the terrain
+        private void GenerateRiver()
+        {
+            // Create a random for generation
+            System.Random rand = new System.Random(seed + level);
+            
+            // Get a bunch of obstacles
+            List<Vector3Int> obstacles = CreateRandomObstacles();
+            
+            // Get a random start and end that are roughly perpendicular to the start and end
+            Vector3Int towardsEnd = end - start;
+            // Determine which distance is larger, X or Y
+            bool perpendicularOnY = (int)Mathf.Max((int)Mathf.Abs(towardsEnd.x), (int)Mathf.Abs(towardsEnd.y)) != (int)Mathf.Abs(towardsEnd.y);
+            
+            // Get the start and end points
+            Vector3Int startRiver = Vector3Int.zero;
+            Vector3Int endRiver = Vector3Int.zero;
+            
+            // Calculate the center of the track
+            Vector3Int trackCenter = new Vector3Int((int)Mathf.Floor((start.x + end.x) / 2f), (int)Mathf.Floor((start.y + end.y) / 2f), 0);
+            int startDistanceFromCenterOnAxis = 0;
+
+            if (perpendicularOnY)
+            {
+                // Get points on Y ends
+                startRiver = new Vector3Int((int)Mathf.Floor(rand.Next(bounds.xMin, bounds.xMax - 1)), bounds.yMin, 1);
+                endRiver = new Vector3Int(0, bounds.yMax - 1, 1);
+                
+                // Determine how far away the start is from the center
+                startDistanceFromCenterOnAxis = startRiver.x - trackCenter.x;
+                
+                // Mirror the end to the other side
+                endRiver.x = trackCenter.x - startDistanceFromCenterOnAxis;
+            }
+            else
+            {
+                // Get points on X ends
+                startRiver = new Vector3Int(bounds.xMin, (int)Mathf.Floor(rand.Next(bounds.yMin, bounds.yMax - 1)), 1);
+                endRiver = new Vector3Int(bounds.xMax - 1, 0, 1);
+                
+                // Determine how far away the start is from the center
+                startDistanceFromCenterOnAxis = startRiver.y - trackCenter.y;
+                
+                // Mirror the end to the other side
+                endRiver.y = trackCenter.y - startDistanceFromCenterOnAxis;
+            }
+
+            startRiver.z = 0;
+            endRiver.z = 0;
+            
+            // Get 3 points between the start and end
+            List<Vector3Int> subGoals = new List<Vector3Int>();
+            int subGoalCount = 3;
+
+            for (int i = 0; i < subGoalCount; i++)
+            {
+                Vector3 subGoal = Vector3.Lerp(startRiver, endRiver, ((float)i + 1f) / ((float)subGoalCount + 1f));
+                Vector3Int subGoalSnapped = new Vector3Int((int)Mathf.Floor(subGoal.x), (int)Mathf.Floor(subGoal.y), 0);
+
+                if (!subGoals.Contains(subGoalSnapped))
+                {
+                    subGoals.Add(subGoalSnapped);
+                }
+            }
+            
+            // Find the closest obstacle to each point
+            List<Vector3Int> subGoalsSelected = new List<Vector3Int>();
+            foreach (Vector3Int subGoal in subGoals)
+            {
+                Vector3Int subGoalSelected = GetClosestPointToPoint(subGoal, obstacles);
+                
+                if (!subGoalsSelected.Contains(subGoalSelected))
+                {
+                    subGoalsSelected.Add(subGoalSelected);
+                }
+            }
+            
+            // Add the end river to the subgoals
+            if (!subGoalsSelected.Contains(endRiver))
+            {
+                subGoalsSelected.Add(endRiver);
+            }
+            
+            // Create a series of sub-paths with the sub-goals
+            // For each segment of the path, find the subpath
+            List<Vector3Int> riverPath = new List<Vector3Int>();
+            Vector3Int currentStart = startRiver;
+            for (int i = 0; i < subGoalsSelected.Count; i++)
+            {
+                // Get the current end
+                Vector3Int currentEnd = subGoalsSelected[i];
+
+                // Get the current path from current start to current end
+                List<Vector3Int> currentPath = FindPath(currentStart, currentEnd, obstacles);
+                
+                // Store the new start
+                currentStart = currentPath[currentPath.Count - 1];
+                
+                // Remove the end from the current path
+                currentPath.RemoveRange(currentPath.Count - 1, 1);
+                
+                // Add the current path to the main path
+                riverPath.AddRange(currentPath);
+            }
+            
+            // For each river path position, find the terrain tile below
+            foreach (Vector3Int riverPosition in riverPath)
+            {
+                // Get the index for the terrain below
+                int terrainIndex = terrain.FindIndex(t => t.position.x == riverPosition.x && t.position.y == riverPosition.y);
+
+                // If the terrain was found
+                if (terrainIndex != -1)
+                {
+                    // Clear all other modifiers from the terrain tile
+                    terrain[terrainIndex]
+                    
+                    // Add the water modifier to the terrain tile
+                    
+                }
+                
+            }
+
+            foreach (Vector3Int riverPosition in riverPath)
+            {
+                river.Add(new FieldTile(riverPosition, FieldTileType.None, 0));
+            }
+            
+            foreach (Vector3Int obstacle in obstacles)
+            {
+                river.Add(new FieldTile(obstacle, FieldTileType.Flat, 0));
+            }
+            
+            river.Add(new FieldTile(trackCenter, FieldTileType.Elevated, 0));
+        }
+        
+        // Returns the closest point from a list to a given point 
+        private Vector3Int GetClosestPointToPoint(Vector3Int point, List<Vector3Int> searchPoints)
+        {
+            Vector3Int returnPoint = searchPoints[0];
+            float distanceToPoint = Vector3.Distance(point, returnPoint);
+            
+            // Iterate over each point in the list and return the closest point
+            foreach (Vector3Int searchPoint in searchPoints)
+            {
+                float searchPointDistance = Vector3.Distance(point, searchPoint);
+                if (distanceToPoint > searchPointDistance)
+                {
+                    distanceToPoint = searchPointDistance;
+                    returnPoint = searchPoint;
+                }
+
+                // If the point is identical to the reference point, just end the method early
+                if (searchPoint == point)
+                {
+                    return searchPoint;
+                }
+            }
+
+            return returnPoint;
         }
         
         // Clears any flat terrain under the playfield hole

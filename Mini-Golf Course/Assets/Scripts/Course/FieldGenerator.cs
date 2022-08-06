@@ -142,6 +142,22 @@ namespace Course
                                 break;
                         }
                     }
+                    
+                    // Draw River
+                    foreach (FieldTile river in playfield.river)
+                    {
+                        Gizmos.color = Color.blue;
+                        if (river.tileType == FieldTileType.Elevated)
+                        {
+                            Gizmos.color = Color.cyan;
+                        }
+                        if (river.tileType == FieldTileType.Flat)
+                        {
+                            Gizmos.color = Color.red;
+                        }
+                        // Gizmos.DrawWireCube(GridToWorld(river.position), new Vector3(1f, 0.5f, 1f));
+                        Gizmos.DrawCube(GridToWorld(river.position), new Vector3(1f, 0.5f, 1f));
+                    }
                 }
             }
         }
