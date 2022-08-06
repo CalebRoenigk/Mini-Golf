@@ -39,7 +39,7 @@ namespace Course.Field
             this.level = level;
             
             // Store a new field settings object
-            fieldSettings = new FieldSettings(this, 0.075f, 0.25f);
+            fieldSettings = new FieldSettings(this, 0.075f, 0.25f, 0.1f, 0.2f, 0.1f);
             
             // Generate the field and the bounds of the level
             List<Vector3Int> field = GenerateField();
@@ -881,9 +881,27 @@ namespace Course.Field
                 if ((float)rand.NextDouble() > 1 - fieldSettings.decoChance)
                 {
                     // Add a random deco to the terrain
-                    List<TileModifier> decoModifiers = new List<TileModifier>() { TileModifier.Bush, TileModifier.Tree, TileModifier.Rock };
+                    if ((float)rand.NextDouble() > 1 - fieldSettings.terrainRockChance)
+                    {
+                        terrain[i].AddModifier(TileModifier.Rock);
+                        continue;
+                    }
                     
-                    terrain[i].AddModifier(decoModifiers[rand.Next(0, decoModifiers.Count)]);
+                    if ((float)rand.NextDouble() > 1 - fieldSettings.terrainBushChance)
+                    {
+                        terrain[i].AddModifier(TileModifier.Bush);
+                        continue;
+                    }
+                    
+                    if ((float)rand.NextDouble() > 1 - fieldSettings.terrainTreeChance)
+                    {
+                        terrain[i].AddModifier(TileModifier.Tree);
+                        continue;
+                    }
+                    
+                    // List<TileModifier> decoModifiers = new List<TileModifier>() { TileModifier.Bush, TileModifier.Tree, TileModifier.Rock };
+                    //
+                    // terrain[i].AddModifier(decoModifiers[rand.Next(0, decoModifiers.Count)]);
                 }
             }
         }
@@ -1338,33 +1356,60 @@ namespace Course.Field
         }
         
         // Smooths the jagged edges in the track out
-        private void SmoothTrack(int countLeft = 32)
+        private void SmoothTrack(int countLeft = 31)
         {
             List<Vector3Int> smoothTrack = new List<Vector3Int>();
             Dictionary<int, Vector3Int> smoothedTiles = new Dictionary<int, Vector3Int>();
             bool didSmooth = false;
+            bool smoothPrevious = countLeft % 2 == 0;
             for (int i = 0; i < track.Count; i++)
             {
                 FieldTile currentTrack = track[i];
 
-                // Get the current and next track tile
-                if (i < track.Count - 1)
+                // Determine which smoothing order to do
+                if (smoothPrevious)
                 {
-                    FieldTile nextTrack = track[i + 1];
-                    
-                    // If the next track is a different z then this one and the track tile type isnt a slope
-                    if (nextTrack.position.z < currentTrack.position.z && !didSmooth)
+                    // Get the current and next track tile
+                    if (i < track.Count - 1)
                     {
-                        if (nextTrack.tileType != FieldTileType.Slope)
+                        FieldTile nextTrack = track[i + 1];
+                    
+                        // If the next track is a different z then this one and the track tile type isnt a slope
+                        if (nextTrack.position.z < currentTrack.position.z && !didSmooth)
                         {
-                            // The next track should be offset
-                            Vector3Int nextPosition = nextTrack.position;
-                            nextPosition.z = currentTrack.position.z;
-                            smoothedTiles.Add(i + 1, nextPosition);
-                            didSmooth = true;
+                            if (nextTrack.tileType != FieldTileType.Slope)
+                            {
+                                // The next track should be offset
+                                Vector3Int nextPosition = nextTrack.position;
+                                nextPosition.z = currentTrack.position.z;
+                                smoothedTiles.Add(i + 1, nextPosition);
+                                didSmooth = true;
+                            }
                         }
                     }
                 }
+                else
+                {
+                    // Get the current and previous track tile
+                    if (i > 0)
+                    {
+                        FieldTile previousTrack = track[i - 1];
+                    
+                        // If the previous track is a different z then this one and the track tile type isnt a slope
+                        if (previousTrack.position.z < currentTrack.position.z && !didSmooth)
+                        {
+                            if (currentTrack.tileType != FieldTileType.Slope)
+                            {
+                                // The previous track should be offset
+                                Vector3Int previousPosition = previousTrack.position;
+                                previousPosition.z = currentTrack.position.z;
+                                smoothedTiles.Add(i - 1, previousPosition);
+                                didSmooth = true;
+                            }
+                        }
+                    }
+                }
+                
             }
 
             // Create the smooth track
