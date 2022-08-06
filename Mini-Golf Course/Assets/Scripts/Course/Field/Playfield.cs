@@ -58,11 +58,11 @@ namespace Course.Field
             lastPosition.z = field[field.Count - 2].z;
             field[field.Count - 1] = lastPosition;
             
-            // Extend the end one more in the current moving direction
-            lastPosition = field[field.Count - 1];
-            Vector3Int penultimatePosition = field[field.Count - 2];
-            Vector3Int endDirection = lastPosition - penultimatePosition;
-            field.Add(lastPosition + endDirection);
+            // // Extend the end one more in the current moving direction
+            // lastPosition = field[field.Count - 1];
+            // Vector3Int penultimatePosition = field[field.Count - 2];
+            // Vector3Int endDirection = lastPosition - penultimatePosition;
+            // field.Add(lastPosition + endDirection);
             
             // Then calculate the track tiles
             GenerateTrack(field);
@@ -878,7 +878,7 @@ namespace Course.Field
                 if ((float)rand.NextDouble() > 1 - fieldSettings.decoChance)
                 {
                     // Add a random deco to the terrain
-                    List<TileModifier> decoModifiers = new List<TileModifier>() { TileModifier.Rock, TileModifier.Tree, TileModifier.Bush };
+                    List<TileModifier> decoModifiers = new List<TileModifier>() { TileModifier.Bush, TileModifier.Tree, TileModifier.Rock };
                     
                     terrain[i].AddModifier(decoModifiers[rand.Next(0, decoModifiers.Count - 1)]);
                 }

@@ -34,9 +34,11 @@ namespace Course
         [Header("Data")]
         [SerializeField] private List<FieldTileData> terrainTileData = new List<FieldTileData>();
         [SerializeField] private List<FieldTileData> trackTileData = new List<FieldTileData>();
+        [SerializeField] private List<DecoTileData> decoTileData = new List<DecoTileData>();
 
         [Header("Game")]
         [SerializeField] private GameObject fieldTilePrefab;
+        [SerializeField] private GameObject decoTilePrefab;
         private List<GameObject> gameTiles = new List<GameObject>();
         // [SerializeField] private Ball ball;
 
@@ -157,10 +159,28 @@ namespace Course
             foreach (FieldTile terrainTile in playfield.terrain)
             {
                 GameTile terrainObject = Instantiate(fieldTilePrefab, GridToWorld(terrainTile.position), Quaternion.identity, terrainParent).GetComponent<GameTile>();
-
                 terrainObject.SetTile(terrainTile, terrainTileData.Find(t => t.fieldTileType == terrainTile.tileType).mesh);
+
+                foreach (TileModifier modifier in terrainTile.modifiers)
+                {
+                    DecoTile decoObject = Instantiate(decoTilePrefab, GridToWorld(terrainTile.position), Quaternion.identity, terrainObject.transform).GetComponent<DecoTile>();
+                    DecoTileData data = decoTileData.Find(t => t.tileModifer == modifier);
+                    decoObject.SetTile(terrainTile, data.mesh, data.material);
+
+                    gameTiles.Add(decoObject.gameObject);
+                }
+
+                gameTiles.Add(terrainObject.gameObject);
             }
             
+            // Create the track
+            foreach (FieldTile trackTile in playfield.track)
+            {
+                GameTile trackObject = Instantiate(fieldTilePrefab, GridToWorld(trackTile.position), Quaternion.identity, trackParent).GetComponent<GameTile>();
+                trackObject.SetTile(trackTile, trackTileData.Find(t => t.fieldTileType == trackTile.tileType).mesh);
+                
+                gameTiles.Add(trackObject.gameObject);
+            }
         }
         
         // Creates deco objects for the level
