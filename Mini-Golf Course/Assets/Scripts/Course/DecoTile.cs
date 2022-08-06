@@ -22,7 +22,7 @@ namespace Course
 
             renderer.material = material;
             renderer.material.SetColor("_BaseColor", color);
-            transform.eulerAngles = new Vector3(0f, Random.Range(0f, 360f), 0f);
+            transform.eulerAngles = new Vector3(0f, 0f, Random.Range(0f, 360f));
         }
     }
 }

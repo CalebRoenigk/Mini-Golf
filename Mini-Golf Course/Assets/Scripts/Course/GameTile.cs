@@ -24,5 +24,24 @@ namespace Course
             renderer.material = material;
             transform.eulerAngles = new Vector3(-90f, fieldTile.rotation, 0f);
         }
+        
+        // Set the tile up with a secondary material
+        public void SetTile(FieldTile tile, Mesh tileMesh, Material material, Material secondaryMaterial)
+        {
+            fieldTile = tile;
+            meshFilter.mesh = tileMesh;
+            meshCollider.sharedMesh = tileMesh;
+            Material[] materials = new Material[2];
+            materials[0] = material;
+            materials[1] = secondaryMaterial;
+            renderer.materials = materials;
+            transform.eulerAngles = new Vector3(-90f, fieldTile.rotation, 0f);
+        }
+        
+        // Sets the speed of the material at index passed
+        public void SetMaterialVector(int materialIndex, string propertyName, Vector4 vector)
+        {
+            renderer.materials[materialIndex].SetVector(propertyName, vector);
+        }
     }
 }

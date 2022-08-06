@@ -10,5 +10,6 @@ namespace Course
     {
         public TileModifier replacmentModifier;
         public Mesh mesh;
+        public Material secondaryMaterial;
     }
 }

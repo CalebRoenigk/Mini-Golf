@@ -28,6 +28,9 @@ namespace Course.Field
         public List<FieldTile> track = new List<FieldTile>();
         public List<FieldTile> support = new List<FieldTile>();
         
+        // Playfield Secondary Information
+        public List<Vector3Int> riverPositions = new List<Vector3Int>();
+        
         public Playfield()
         {
             
@@ -1387,7 +1390,7 @@ namespace Course.Field
             }
         }
 
-        // Removes any deco modifers directly below any track
+        // Removes any deco modifiers directly below any track
         private void CleanDeco()
         {
             // Iterate over each track
@@ -1554,9 +1557,12 @@ namespace Course.Field
                 riverPath.Insert(0,startRiver + Vector3Int.left);
                 riverPath.Add(endRiver + Vector3Int.right);
             }
-            
+
             // Clean any spurs off the river
             riverPath = CleanPathSpurs(riverPath);
+            
+            // Save all river positions
+            riverPositions = riverPath;
 
             // Get the river as a path of field tiles with proper tile types, these will be transfered down and stored in the terrain
             List<FieldTile> riverTiles = GenerateTilePath(riverPath);
@@ -1758,6 +1764,12 @@ namespace Course.Field
                     {
                         distanceToGround--;
                     }
+                    
+                    // If the terrain below has water as a modifier, add one to the distance to ground
+                    if (terrainTypeBelow != -1 && terrain[terrainTypeBelow].modifiers.Contains(TileModifier.Water))
+                    {
+                        distanceToGround++;
+                    }
 
                     // Iterate down towards the terrain, adding a support for each cell
                     for (int i = 0; i < distanceToGround; i++)
@@ -1798,5 +1810,37 @@ namespace Course.Field
             }
         }
         
+        // Returns a Vector2 describing the direction of the passed river tile
+        public Vector2 GetRiverDirection(Vector3Int tilePosition)
+        {
+            // Determine the index of the tile
+            tilePosition.z = 0;
+            int currentIndex = riverPositions.FindIndex(p => p == tilePosition);
+
+            if(currentIndex != -1)
+            {
+                // Get the previous and next tile
+                Vector3Int previousPosition = riverPositions[currentIndex - 1];
+                Vector3Int currentPosition = riverPositions[currentIndex];
+                Vector3Int nextPosition = riverPositions[currentIndex + 1];
+                
+                // Determine the direction from the last to the current and from the current to the next
+                Vector3Int inDirection = currentPosition - previousPosition;
+                Vector3Int outDirection = nextPosition - currentPosition;
+
+                if (inDirection == outDirection)
+                {
+                    // Straight
+                    return new Vector2(0, -1);
+                }
+                else
+                {
+                    // Corner
+                    return new Vector2(1, -1);
+                }
+            }
+            
+            return Vector2.zero;
+        }
     }
 }

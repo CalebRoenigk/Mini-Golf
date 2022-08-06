@@ -39,6 +39,7 @@ namespace Course
         [SerializeField] private Material trackMaterial;
         [SerializeField] private Material supportMaterial;
         [SerializeField] private Material terrainMaterial;
+        [SerializeField] private Material waterMaterial;
 
         [Header("Game")]
         [SerializeField] private GameObject fieldTilePrefab;
@@ -175,6 +176,11 @@ namespace Course
                 GameTile terrainObject = Instantiate(fieldTilePrefab, GridToWorld(terrainTile.position), Quaternion.identity, terrainParent).GetComponent<GameTile>();
                 FieldTileData terrainData = terrainTileData.Find(t => t.fieldTileType == terrainTile.tileType);
                 Mesh terrainMesh = terrainData.mesh;
+                Material secondaryMaterial = terrainMaterial;
+                string materialVectorID = "";
+                Vector4 materialVector = Vector4.zero;
+                bool hasSecondaryMaterial = false;
+                bool setMaterialVector = false;
 
                 foreach (TileModifier modifier in terrainTile.modifiers)
                 {
@@ -193,10 +199,46 @@ namespace Course
                     {
                         // River Placement
                         terrainMesh = terrainData.fieldTileModiferData.Find(m => m.replacmentModifier == TileModifier.Water).mesh;
+                        secondaryMaterial = terrainData.fieldTileModiferData.Find(m => m.replacmentModifier == TileModifier.Water).secondaryMaterial;
+                        materialVector = playfield.GetRiverDirection(terrainTile.position);
+                        if (terrainTile.rotation == 90 && terrainTile.tileType == FieldTileType.Flat)
+                        {
+                            materialVector.y = 1;
+                        }
+
+                        if ((terrainTile.rotation == 180 || terrainTile.rotation == 90) && terrainTile.tileType == FieldTileType.Bend)
+                        {
+                            materialVector.x = -1;
+                            materialVector.y = 1;
+                        }
+                        
+                        if ((terrainTile.rotation == 180 || terrainTile.rotation == -90) && terrainTile.tileType == FieldTileType.Slope)
+                        {
+                            materialVector.y = 1;
+                        }
+
+                        materialVector *= 0.25f;
+                        
+                        materialVectorID = "_RiverSpeed";
+                        hasSecondaryMaterial = true;
+                        setMaterialVector = true;
                     }
                 }
+
+                if (hasSecondaryMaterial)
+                {
+                    terrainObject.SetTile(terrainTile, terrainMesh, terrainMaterial, secondaryMaterial);
+                }
+                else
+                {
+                    terrainObject.SetTile(terrainTile, terrainMesh, terrainMaterial);
+                }
+
+                if (setMaterialVector)
+                {
+                    terrainObject.SetMaterialVector(1, materialVectorID,materialVector);
+                }
                 
-                terrainObject.SetTile(terrainTile, terrainMesh, terrainMaterial);
                 
                 terrainObject.gameObject.tag = "Terrain";
                 gameTiles.Add(terrainObject.gameObject);
