@@ -2,8 +2,10 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEditor;
+using Cinemachine;
 // using Dice;
 using Course.Field;
+using Golf;
 
 namespace Course
 {
@@ -41,9 +43,13 @@ namespace Course
         [SerializeField] private Material terrainMaterial;
         [SerializeField] private Material waterMaterial;
 
+        [Header("Camera")]
+        [SerializeField] private CinemachineTargetGroup ballTargetGroup;
+
         [Header("Game")]
         [SerializeField] private GameObject fieldTilePrefab;
         [SerializeField] private GameObject decoTilePrefab;
+        [SerializeField] private Transform endHole;
         private List<GameObject> gameTiles = new List<GameObject>();
         // [SerializeField] private Ball ball;
 
@@ -163,6 +169,9 @@ namespace Course
         {
             playfield = GeneratePlayfield();
             InstantiatePlayfield();
+            
+            // Set the target of the ball camera
+            SetupCamera();
 
             // ball.transform.position = playfield.spawn;
         }
@@ -261,6 +270,11 @@ namespace Course
                 
                 trackObject.gameObject.tag = "Track";
                 gameTiles.Add(trackObject.gameObject);
+
+                if (trackTile.modifiers.Contains(TileModifier.Hole))
+                {
+                    endHole = trackObject.transform;
+                }
             }
             
             // Create the supports
@@ -302,6 +316,20 @@ namespace Course
         private Vector3 GridToWorld(Vector3Int position)
         {
             return new Vector3(position.x, position.z * 0.5f, position.y);
+        }
+        
+        // Sets up the ball camera
+        private void SetupCamera()
+        {
+            CinemachineTargetGroup.Target[] ballTargets = new CinemachineTargetGroup.Target[2];
+            ballTargets[0].target = Ball.instance.transform;
+            ballTargets[0].radius = 4f;
+            ballTargets[0].weight = 90f;
+            ballTargets[1].target = endHole;
+            ballTargets[1].radius = 1f;
+            ballTargets[1].weight = 10f;
+
+            ballTargetGroup.m_Targets = ballTargets;
         }
     }
 }

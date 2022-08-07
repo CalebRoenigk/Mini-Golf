@@ -7,6 +7,9 @@ namespace Golf
 {
     public class Ball : MonoBehaviour
     {
+        [Header("Singleton")]
+        public static Ball instance;
+        
         [Header("Runtime")]
         [SerializeField] private Rigidbody rigidbody;
         
@@ -18,6 +21,11 @@ namespace Golf
         [Header("Gamestate")]
         public Vector3 lastHitPosition;
         public Vector3 lastHitRotation;
+
+        private void Awake()
+        {
+            instance = this;
+        }
 
         private void Start()
         {

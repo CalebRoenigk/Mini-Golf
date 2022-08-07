@@ -2,7 +2,9 @@
     "name": "Course",
     "rootNamespace": "Course",
     "references": [
-        "GUID:699cbc6a0853549669cf45f8d18c4567"
+        "GUID:699cbc6a0853549669cf45f8d18c4567",
+        "GUID:4307f53044263cf4b835bd812fc161a4",
+        "GUID:a85df314fd9dd499191aec745f1ff136"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

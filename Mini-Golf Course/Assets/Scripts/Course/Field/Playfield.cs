@@ -91,6 +91,8 @@ namespace Course.Field
             
             // Generate the supports
             GenerateSupports();
+            
+            // TODO: Generate Camera "Intro" to level. Probs wide circling shot, Dolly on part of track to hole, orbit down to start on ball
         }
 
         // Returns the field locations for the playfield
