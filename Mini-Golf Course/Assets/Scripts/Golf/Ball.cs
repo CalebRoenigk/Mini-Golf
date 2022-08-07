@@ -20,6 +20,7 @@ namespace Golf
         public bool isResting = false; // Is the physics object deactivated
         public bool isAiming = false; // Is the player allowed to aim
         public bool isTraveling = true; // Is the ball traveling
+        public bool isInHole = false; // Is the ball in the hole
         public bool isSandy = false; // Is the ball in sand
         public bool isGrassy = false; // Is the ball in grass
 
@@ -130,6 +131,15 @@ namespace Golf
                 default:
                     Debug.Log("???");
                     break;
+            }
+        }
+
+        private void OnTriggerStay(Collider other)
+        {
+            // If the ball is in the hole, mark its state as in hole
+            if (other.gameObject.tag == "Hole")
+            {
+                isInHole = true;
             }
         }
 
