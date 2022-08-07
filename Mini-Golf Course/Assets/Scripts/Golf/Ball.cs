@@ -17,8 +17,9 @@ namespace Golf
         
         [Header("General")]
         public bool isResting = false; // Is the physics object deactivated
-        public bool isSandy = false;
-        public bool isGrassy = false;
+        public bool isAiming = false; // Is the player allowed to aim
+        public bool isSandy = false; // Is the ball in sand
+        public bool isGrassy = false; // Is the ball in grass
 
         [Header("Camera Data")]
         private Camera mainCamera;
@@ -49,8 +50,8 @@ namespace Golf
 
         private void Update()
         {
-            // Draw the force line when the ball is resting
-            if (isResting)
+            // Draw the force line when the ball is resting and aiming
+            if (isResting && isAiming)
             {
                 // Get the world position of the mouse
                 mouseWorldPosition = GetMouseWorldPosition();
@@ -65,7 +66,13 @@ namespace Golf
                     DrawForceLine(hittingWorldPosition);
                 }
             }
-            
+
+            // If the ball is not aiming, turn off the line renderer
+            if (!isAiming)
+            {
+                forceLine.enabled = false;
+            }
+
         }
         
         private void FixedUpdate()
@@ -85,11 +92,12 @@ namespace Golf
             
             // Get the normal of the lowest contact and store it as the new terrain normal
             terrainNormal = lowestContact.normal;
-
+            
             switch (collisionInfo.gameObject.tag)
             {
                 case "Terrain":
                     // Reset to the last position
+                    Debug.Log("Resetting");
                     ResetHit(0.25f);
                     break;
                 case "Track":
@@ -111,24 +119,27 @@ namespace Golf
                 Gizmos.color = Color.cyan;
                 Gizmos.DrawRay(transform.position, terrainNormal * 0.25f);
                 
-                // Draw the mouse plane
-                Vector3 mousePlaneSize = new Vector3(2f, 0f, 2f);
-                Gizmos.color = Color.cyan;
-                Gizmos.DrawWireCube(transform.position, mousePlaneSize);
-                Gizmos.color = new Color(0f, 1f, 1f, 0.125f);
-                Gizmos.DrawCube(transform.position, mousePlaneSize);
-                
-                // Draw mouse position
-                if (!float.IsNegativeInfinity(mouseWorldPosition.x))
+                // If the ball is aiming
+                if (isAiming)
                 {
+                    // Draw the mouse plane
+                    Vector3 mousePlaneSize = new Vector3(2f, 0f, 2f);
                     Gizmos.color = Color.cyan;
-                    Gizmos.DrawSphere(hittingWorldPosition, 0.05f);
+                    Gizmos.DrawWireCube(transform.position, mousePlaneSize);
+                    Gizmos.color = new Color(0f, 1f, 1f, 0.125f);
+                    Gizmos.DrawCube(transform.position, mousePlaneSize);
+                
+                    // Draw mouse position
+                    if (!float.IsNegativeInfinity(mouseWorldPosition.x))
+                    {
+                        Gizmos.color = Color.cyan;
+                        Gizmos.DrawSphere(hittingWorldPosition, 0.05f);
                     
-                    Gizmos.color = Color.blue;
-                    Gizmos.DrawSphere(mouseWorldPosition, 0.0625f);
+                        Gizmos.color = Color.blue;
+                        Gizmos.DrawSphere(mouseWorldPosition, 0.0625f);
+                    }
                 }
             }
-            
         }
 
         // Resets the hit with an optional delay
@@ -141,8 +152,11 @@ namespace Golf
         private IEnumerator SpawnBallAtLastHit(float waitTime)
         {
             yield return new WaitForSeconds(waitTime);
+            // Return to last hit
             transform.position = lastHitPosition;
             transform.eulerAngles = lastHitRotation;
+            // Set aiming to true
+            isAiming = true;
         }
         
         // Stores the last hit as the current transform

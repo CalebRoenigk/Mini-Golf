@@ -52,6 +52,7 @@ namespace Course
         [SerializeField] private Transform endHole;
         private List<GameObject> gameTiles = new List<GameObject>();
         // [SerializeField] private Ball ball;
+        private Vector3 trackOffsetFromTerrain = new Vector3(0f, 0.03f, 0f); // The amount of extra Y offset used to keep the ball from hitting the terrain when colliding with the track normally
 
         [Header("Gizmos")]
         [SerializeField] private bool showDebug = false;
@@ -190,6 +191,7 @@ namespace Course
                 Vector4 materialVector = Vector4.zero;
                 bool hasSecondaryMaterial = false;
                 bool setMaterialVector = false;
+                terrainObject.gameObject.name = "Terrain" + terrainTile.position.ToString();
 
                 foreach (TileModifier modifier in terrainTile.modifiers)
                 {
@@ -202,6 +204,7 @@ namespace Course
                         decoObject.SetTile(modifier, color, mesh, data.material);
 
                         decoObject.gameObject.tag = "Decoration";
+                        decoObject.gameObject.name = modifier.ToString();
                         gameTiles.Add(decoObject.gameObject);
                     }
                     else
@@ -231,6 +234,7 @@ namespace Course
                         materialVectorID = "_RiverSpeed";
                         hasSecondaryMaterial = true;
                         setMaterialVector = true;
+                        terrainObject.gameObject.name = "River" + terrainTile.position.ToString();
                     }
                 }
 
@@ -256,7 +260,7 @@ namespace Course
             // Create the track
             foreach (FieldTile trackTile in playfield.track)
             {
-                GameTile trackObject = Instantiate(fieldTilePrefab, GridToWorld(trackTile.position) + new Vector3(0f, 0.01f, 0f), Quaternion.identity, trackParent).GetComponent<GameTile>();
+                GameTile trackObject = Instantiate(fieldTilePrefab, GridToWorld(trackTile.position) + trackOffsetFromTerrain, Quaternion.identity, trackParent).GetComponent<GameTile>();
                 FieldTileData data = trackTileData.Find(t => t.fieldTileType == trackTile.tileType);
                 Mesh mesh = data.mesh;
                 foreach (FieldTileModifierData tileModifier in data.fieldTileModiferData)
@@ -269,6 +273,7 @@ namespace Course
                 trackObject.SetTile(trackTile, mesh, trackMaterial);
                 
                 trackObject.gameObject.tag = "Track";
+                trackObject.gameObject.name = "Track" + trackTile.position.ToString();
                 gameTiles.Add(trackObject.gameObject);
 
                 if (trackTile.modifiers.Contains(TileModifier.Hole))
@@ -280,7 +285,7 @@ namespace Course
             // Create the supports
             foreach (FieldTile supportTile in playfield.support)
             {
-                GameTile supportObject = Instantiate(fieldTilePrefab, GridToWorld(supportTile.position) + new Vector3(0f, 0.01f, 0f), Quaternion.identity, trackParent).GetComponent<GameTile>();
+                GameTile supportObject = Instantiate(fieldTilePrefab, GridToWorld(supportTile.position) + trackOffsetFromTerrain, Quaternion.identity, trackParent).GetComponent<GameTile>();
                 FieldTileData data = supportTileData.Find(t => t.fieldTileType == supportTile.tileType);
                 Mesh mesh = data.mesh;
                 foreach (FieldTileModifierData tileModifier in data.fieldTileModiferData)
@@ -293,6 +298,7 @@ namespace Course
                 supportObject.SetTile(supportTile, mesh, supportMaterial);
                 
                 supportObject.gameObject.tag = "Decoration";
+                supportObject.gameObject.name = "Support" + supportTile.position.ToString();
                 gameTiles.Add(supportObject.gameObject);
             }
         }
