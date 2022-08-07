@@ -5,6 +5,8 @@ using UnityEngine;
 using Course;
 using UnityEditor.SceneManagement;
 
+// TODO: See about tidying this course and field namespace a bit?
+
 namespace Course.Field
 {
     [System.Serializable]

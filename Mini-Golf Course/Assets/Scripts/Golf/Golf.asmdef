@@ -1,9 +1,7 @@
 {
-    "name": "Course",
-    "rootNamespace": "Course",
-    "references": [
-        "GUID:699cbc6a0853549669cf45f8d18c4567"
-    ],
+    "name": "Golf",
+    "rootNamespace": "Golf",
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

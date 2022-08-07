@@ -1,8 +1,9 @@
 {
-    "name": "Course",
-    "rootNamespace": "Course",
+    "name": "Scripts",
+    "rootNamespace": "",
     "references": [
-        "GUID:699cbc6a0853549669cf45f8d18c4567"
+        "GUID:a85df314fd9dd499191aec745f1ff136",
+        "GUID:97d11df534f0440dc8671553ae3af039"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
