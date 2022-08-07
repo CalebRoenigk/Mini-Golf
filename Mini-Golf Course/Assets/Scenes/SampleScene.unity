@@ -5183,7 +5183,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 89485855}
-  m_LocalRotation: {x: 0.22555405, y: -0.2663524, z: 0.06425966, w: 0.93490773}
+  m_LocalRotation: {x: 0.27250034, y: 0.60686505, z: -0.23314808, w: 0.7092957}
   m_LocalPosition: {x: -11.821065, y: 10.785561, z: -1.8511705}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -8024,7 +8024,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 418e42c7d0405cc48a7b83f63ea53bb3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Path: {fileID: 2005323242}
+  m_Path: {fileID: 2005323244}
   m_PathPosition: 0
   m_PositionUnits: 0
   m_PathOffset: {x: 0, y: 0, z: 0}
@@ -9177,7 +9177,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 150712858}
-  m_LocalRotation: {x: 0.04263025, y: 0.39799646, z: -0.018518364, w: 0.9162088}
+  m_LocalRotation: {x: -0.17179297, y: 0.6977545, z: 0.1783295, w: 0.67217886}
   m_LocalPosition: {x: -3.534, y: -1.934, z: 0.13199997}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -9203,15 +9203,19 @@ PlayableDirector:
   - key: {fileID: 0}
     value: {fileID: 150712859}
   - key: {fileID: 7071996559831122664, guid: 667f4c662ba684cc98b951b0a86bc30a, type: 2}
-    value: {fileID: 0}
+    value: {fileID: 150712859}
   - key: {fileID: -8478101234520456497, guid: 667f4c662ba684cc98b951b0a86bc30a, type: 2}
-    value: {fileID: 0}
+    value: {fileID: 517704932}
   - key: {fileID: -9195424214548034191, guid: 667f4c662ba684cc98b951b0a86bc30a, type: 2}
-    value: {fileID: 0}
+    value: {fileID: 460237972}
   - key: {fileID: 8217798606340274301, guid: 667f4c662ba684cc98b951b0a86bc30a, type: 2}
-    value: {fileID: 0}
+    value: {fileID: 911134262}
   m_ExposedReferences:
-    m_References: []
+    m_References:
+    - d8404f4f995764fe6960a50323f244be: {fileID: 1372606457}
+    - 157454591676647a7b3a28fa7eceb3b2: {fileID: 881160004}
+    - 16eda9e6107f04cbc9a9783d10a7c016: {fileID: 89485856}
+    - 64db9067c886d4edc98739356841f640: {fileID: 608095952}
 --- !u!1 &157506414
 GameObject:
   m_ObjectHideFlags: 0
@@ -54886,7 +54890,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 881160003}
-  m_LocalRotation: {x: 0.04263025, y: 0.39799646, z: -0.018518364, w: 0.9162088}
+  m_LocalRotation: {x: -0.17179297, y: 0.69775444, z: 0.17832948, w: 0.6721789}
   m_LocalPosition: {x: -3.534, y: -1.934, z: 0.132}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -79029,7 +79033,7 @@ MonoBehaviour:
   - target: {fileID: 0}
     weight: 90
     radius: 4
-  - target: {fileID: 1288304873}
+  - target: {fileID: 610802251}
     weight: 10
     radius: 1
 --- !u!4 &1305718069
@@ -79040,7 +79044,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1305718067}
   m_LocalRotation: {x: -0.0000000072250157, y: -0.16528907, z: -0.16528907, w: 0.97229576}
-  m_LocalPosition: {x: 13.677736, y: -4.1302233, z: 16.204815}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -85246,7 +85250,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1372606455}
-  m_LocalRotation: {x: 0.0901937, y: 0.34179536, z: -0.032976013, w: 0.9348549}
+  m_LocalRotation: {x: 0.090193704, y: 0.34179536, z: -0.032976016, w: 0.93485487}
   m_LocalPosition: {x: -11.821065, y: 10.785561, z: -1.8511705}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -94209,14 +94213,15 @@ MonoBehaviour:
   seed: 0
   overrideSeed: 1
   overrideSeedValue: 100
-  cameraDirector: {fileID: 0}
+  cameraDirector: {fileID: 150712864}
   ballTargetGroup: {fileID: 1305718068}
   playerCamera: {fileID: 881160005}
   playerVirtualCamera: {fileID: 881160004}
-  orbitCameraTrack: {fileID: 0}
-  truckPlayfieldTrack: {fileID: 0}
-  fallToStartTrack: {fileID: 0}
-  centerTarget: {fileID: 0}
+  orbitCameraTrack: {fileID: 2005323244}
+  truckPlayfieldTrack: {fileID: 1900510673}
+  fallToStartTrack: {fileID: 1221214350}
+  centerTarget: {fileID: 643317436}
+  endTarget: {fileID: 610802251}
   ballPrefab: {fileID: 7924738120391639004, guid: 641a6ea84e4b045eeb06cfc998ced22d,
     type: 3}
 --- !u!4 &1517185109
@@ -121759,7 +121764,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2005323243}
-  - component: {fileID: 2005323242}
+  - component: {fileID: 2005323244}
   m_Layer: 0
   m_Name: OverheadOrbitTrack
   m_TagString: Untagged
@@ -121767,7 +121772,22 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &2005323242
+--- !u!4 &2005323243
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2005323241}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 517704931}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2005323244
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -121794,21 +121814,6 @@ MonoBehaviour:
     roll: 0
   - position: {x: 0, y: 0, z: 0}
     roll: 0
---- !u!4 &2005323243
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2005323241}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 517704931}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2010933293
 GameObject:
   m_ObjectHideFlags: 0

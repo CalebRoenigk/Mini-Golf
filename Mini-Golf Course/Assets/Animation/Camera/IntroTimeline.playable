@@ -234,7 +234,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DisplayName: 
   VirtualCamera:
-    exposedName: 
+    exposedName: 64db9067c886d4edc98739356841f640
     defaultValue: {fileID: 0}
 --- !u!114 &-2756621022323920600
 MonoBehaviour:
@@ -250,7 +250,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DisplayName: 
   VirtualCamera:
-    exposedName: 
+    exposedName: 157454591676647a7b3a28fa7eceb3b2
     defaultValue: {fileID: 0}
 --- !u!114 &-228229476843139306
 MonoBehaviour:
@@ -357,7 +357,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DisplayName: 
   VirtualCamera:
-    exposedName: 
+    exposedName: 16eda9e6107f04cbc9a9783d10a7c016
     defaultValue: {fileID: 0}
 --- !u!114 &7071996559831122664
 MonoBehaviour:
@@ -600,7 +600,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DisplayName: 
   VirtualCamera:
-    exposedName: 
+    exposedName: d8404f4f995764fe6960a50323f244be
     defaultValue: {fileID: 0}
 --- !u!114 &8217798606340274301
 MonoBehaviour:

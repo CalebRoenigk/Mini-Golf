@@ -1935,7 +1935,7 @@ namespace Course.Field
             
             // Create 4 points equi-distant from the center of the course
             List<CinemachineSmoothPath.Waypoint> track1Waypoints = new List<CinemachineSmoothPath.Waypoint>();
-            List<Vector3Int> track1Directions = new List<Vector3Int>() { Vector3Int.back, Vector3Int.left, Vector3Int.forward, Vector3Int.right };
+            List<Vector3Int> track1Directions = new List<Vector3Int>() { Vector3Int.down, Vector3Int.left, Vector3Int.up, Vector3Int.right };
             foreach (Vector3Int direction in track1Directions)
             {
                 // Create the waypoint

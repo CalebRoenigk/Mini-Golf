@@ -327,6 +327,7 @@ namespace Course
         }
         
         // Returns the Intro Playfield Cameras Data
+        // TODO: MOVE THIS TO HAPPEN INSIDE THE CALCULATIONS INSTEAD
         public List<CinemachineSmoothPath> GetPlayfieldIntroCameras()
         {
             List<CinemachineSmoothPath> smoothPaths = playfield.playfieldCameras.GetIntroCamerasList();

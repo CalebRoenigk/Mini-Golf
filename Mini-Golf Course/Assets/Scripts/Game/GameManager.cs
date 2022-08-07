@@ -27,6 +27,7 @@ namespace Game
         [SerializeField] private CinemachineSmoothPath truckPlayfieldTrack;
         [SerializeField] private CinemachineSmoothPath fallToStartTrack;
         [SerializeField] private Transform centerTarget;
+        [SerializeField] private Transform endTarget;
 
         [Header("Ball")]
         [SerializeField] private GameObject ballPrefab;
@@ -82,7 +83,7 @@ namespace Game
             ballTargets[0].target = Ball.instance.transform;
             ballTargets[0].radius = 4f;
             ballTargets[0].weight = 90f;
-            ballTargets[1].target = FieldGenerator.instance.endHole;
+            ballTargets[1].target = endTarget;
             ballTargets[1].radius = 1f;
             ballTargets[1].weight = 10f;
         
@@ -96,12 +97,23 @@ namespace Game
             List<CinemachineSmoothPath> introPaths = FieldGenerator.instance.GetPlayfieldIntroCameras();
             
             // Set up the orbit cam
-            orbitCameraTrack = introPaths[0];
-            truckPlayfieldTrack = introPaths[1];
-            fallToStartTrack = introPaths[2];
+            foreach (CinemachineSmoothPath introPath in introPaths)
+            {
+                introPath.InvalidateDistanceCache();
+            }
+            
+            orbitCameraTrack.m_Waypoints = introPaths[0].m_Waypoints;
+            orbitCameraTrack.InvalidateDistanceCache();
+            truckPlayfieldTrack.m_Waypoints = introPaths[1].m_Waypoints;
+            truckPlayfieldTrack.InvalidateDistanceCache();
+            fallToStartTrack.m_Waypoints = introPaths[2].m_Waypoints;
+            fallToStartTrack.InvalidateDistanceCache();
             
             // Set up the center target
             centerTarget.position = FieldGenerator.instance.GetCenterTargetPosition();
+            
+            // Set up the hole target
+            endTarget.position = FieldGenerator.instance.endHole.position;
 
             // Play the intro
             cameraDirector.Play();
