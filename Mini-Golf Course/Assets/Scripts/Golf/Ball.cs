@@ -28,9 +28,10 @@ namespace Golf
 
         [Header("Hitting")]
         private Vector3 hittingWorldPosition;
-        [SerializeField] private float hitStrength = 1f;
+        [SerializeField] private float maxHitStrength = 1f;
+        [SerializeField] private Gradient hittingStrengthColors;
 
-            [Header("Gamestate")]
+        [Header("Gamestate")]
         public Vector3 lastHitPosition;
         public Vector3 lastHitRotation;
         public Vector3 terrainNormal;
@@ -60,10 +61,13 @@ namespace Golf
                 if (!float.IsNegativeInfinity(mouseWorldPosition.x))
                 {
                     // Clamp the mouse position to the hit strength and store it as the hitting world position
-                    hittingWorldPosition = ClampPointToRadius(mouseWorldPosition, transform.position, hitStrength);
+                    hittingWorldPosition = ClampPointToRadius(mouseWorldPosition, transform.position, maxHitStrength);
+                    
+                    // Get the hit strength from the hitting position
+                    float currentHitStrength = Vector3.Distance(transform.position, hittingWorldPosition);
 
                     // Draw the force line
-                    DrawForceLine(hittingWorldPosition);
+                    DrawForceLine(hittingWorldPosition, currentHitStrength / maxHitStrength);
                 }
             }
 
@@ -97,12 +101,12 @@ namespace Golf
             {
                 case "Terrain":
                     // Reset to the last position
-                    Debug.Log("Resetting");
                     ResetHit(0.25f);
                     break;
                 case "Track":
                     // Store last hit as this position
                     StoreLastHit();
+                    isAiming = true;
                     break;
                 default:
                     Debug.Log("???");
@@ -184,7 +188,7 @@ namespace Golf
         }
         
         // Draws the force line
-        private void DrawForceLine(Vector3 worldPoint)
+        private void DrawForceLine(Vector3 worldPoint, float strength)
         {
             // Create the force line positions
             Vector3[] forcePositions = new Vector3[] { worldPoint, transform.position };
@@ -192,6 +196,13 @@ namespace Golf
             // Set the force line positions
             forceLine.SetPositions(forcePositions);
             forceLine.enabled = true;
+            
+            // Set the color of the force line
+            Color strengthColor = hittingStrengthColors.Evaluate(strength);
+            forceLine.material.SetColor("_Tint", strengthColor);
+            
+            // Set the speed of the force line
+            forceLine.material.SetFloat("_Speed", strength * -2f);
         }
         
         // Clamps a point to a radius given a center
