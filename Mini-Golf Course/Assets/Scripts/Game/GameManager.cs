@@ -6,8 +6,11 @@ namespace Game
 {
     public class GameManager : MonoBehaviour
     {
+        [Header("Game")]
+        public GameState gameState;
+
         // TODO: Add code here
-        
+
         // Game should have different states: Intro, Playing, Win, Outro
         // On intro, ask camera manager to talk to field generator and get all data needed for the camera intro
         // Once playing, ask camera manager to set priority of follow cam to highest
