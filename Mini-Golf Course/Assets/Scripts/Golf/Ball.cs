@@ -14,6 +14,7 @@ namespace Golf
         [Header("Runtime")]
         [SerializeField] private Rigidbody rigidbody;
         [SerializeField] private LineRenderer forceLine;
+        [SerializeField] private LineRenderer trajectoryLine;
         
         [Header("General")]
         public bool isResting = false; // Is the physics object deactivated
@@ -46,6 +47,7 @@ namespace Golf
             // Store the default components
             rigidbody = GetComponent<Rigidbody>();
             forceLine = transform.GetChild(0).GetComponent<LineRenderer>();
+            trajectoryLine = transform.GetChild(1).GetComponent<LineRenderer>();
             mainCamera = Camera.main;
         }
 
@@ -68,6 +70,9 @@ namespace Golf
 
                     // Draw the force line
                     DrawForceLine(hittingWorldPosition, currentHitStrength / maxHitStrength);
+                    
+                    // Draw the trajectory line
+                    DrawTrajectoryLine(GetTrajectoryPoints(transform.position, transform.position - hittingWorldPosition, 3f));
                 }
             }
 
@@ -75,6 +80,7 @@ namespace Golf
             if (!isAiming)
             {
                 forceLine.enabled = false;
+                trajectoryLine.enabled = false;
             }
 
         }
@@ -217,6 +223,65 @@ namespace Golf
             }
 
             return point;
+        }
+        
+        // Returns an array of points of reflections based on an initial start point, a direction, and a max length
+        private Vector3[] GetTrajectoryPoints(Vector3 start, Vector3 direction, float maxLength)
+        {
+            // Soft execution limit for bounces, to prevent long while loops
+            int maxBounces = 12;
+            float maxDist = 100f;
+            
+            List<Vector3> linePoints = new List<Vector3>() {start};
+            
+            // Get the bounces
+            float traveledDistance = 0f;
+            int bounces = 0;
+            bool canIterate = true;
+            while (traveledDistance < maxLength && bounces < maxBounces && canIterate)
+            {
+                // Cast a new ray
+                Vector3 castPosition = linePoints[linePoints.Count - 1];
+                Ray ray = new Ray(castPosition, direction);
+                RaycastHit hit;
+
+                if (Physics.Raycast(ray, out hit, maxDist))
+                {
+                    // Get the distance from the last point to this point 
+                    float distanceToHit = Vector3.Distance(castPosition, hit.point);
+
+                    if (traveledDistance + distanceToHit > maxLength)
+                    {
+                        // The travel distance will put the length over our max, clamp the hit point
+                        castPosition = ClampPointToRadius(hit.point, castPosition, maxLength - (traveledDistance + distanceToHit));
+                        canIterate = false;
+                    }
+                    else
+                    {
+                        castPosition = hit.point;
+                        direction = Vector3.Reflect(direction, hit.normal);
+                        bounces++;
+                    }
+
+                    linePoints.Add(castPosition);
+                }
+                else
+                {
+                    // The raycast returned nothing, exit iteration
+                    canIterate = false;
+                }
+            }
+
+            return linePoints.ToArray();
+        }
+        
+        // Draws the trajectory line
+        private void DrawTrajectoryLine(Vector3[] linePoints)
+        {
+            // Set the trajectory line positions
+            trajectoryLine.positionCount = linePoints.Length;
+            trajectoryLine.SetPositions(linePoints);
+            trajectoryLine.enabled = true;
         }
     }
 }

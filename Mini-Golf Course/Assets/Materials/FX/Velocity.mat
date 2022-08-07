@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Trajectory
+  m_Name: Velocity
   m_Shader: {fileID: -6465566751694194690, guid: 2f16b4b1ce8954e0f9bc71205ce14c6e,
     type: 3}
   m_ValidKeywords: []
@@ -40,13 +40,13 @@ Material:
     m_Ints: []
     m_Floats:
     - _Fade: 0
-    - _Max_Distance: 2
+    - _Max_Distance: 1
     - _QueueControl: 0
     - _QueueOffset: 0
     - _Speed: -2
     m_Colors:
     - _Tiling: {r: 4, g: 1, b: 0, a: 0}
-    - _Tint: {r: 0.5686275, g: 0.85882354, b: 0.4117647, a: 1}
+    - _Tint: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
 --- !u!114 &5712350791601312336
 MonoBehaviour:
