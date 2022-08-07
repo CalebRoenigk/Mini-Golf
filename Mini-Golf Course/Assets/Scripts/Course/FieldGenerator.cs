@@ -49,6 +49,7 @@ namespace Course
         [Header("Game")]
         [SerializeField] private GameObject fieldTilePrefab;
         [SerializeField] private GameObject decoTilePrefab;
+        [SerializeField] private GameObject holePrefab;
         [SerializeField] private Transform endHole;
         private List<GameObject> gameTiles = new List<GameObject>();
         // [SerializeField] private Ball ball;
@@ -278,7 +279,7 @@ namespace Course
 
                 if (trackTile.modifiers.Contains(TileModifier.Hole))
                 {
-                    endHole = trackObject.transform;
+                    endHole = Instantiate(holePrefab, GridToWorld(trackTile.position) + trackOffsetFromTerrain, Quaternion.identity, trackParent).transform;
                 }
             }
             
