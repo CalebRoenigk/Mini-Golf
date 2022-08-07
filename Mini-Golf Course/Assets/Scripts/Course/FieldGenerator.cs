@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -7,26 +8,18 @@ using Cinemachine;
 using Course.Field;
 using Golf;
 
+using Random = UnityEngine.Random;
+
 namespace Course
 {
     public class FieldGenerator : MonoBehaviour
     {
-        [Header("Level")]
-        [Range(0,100)]
-        public int level = 10;
-        private int lastLevel = 10;
-        [Range(0,10000)]
-        public int seed = 100;
-        private int lastSeed = 100;
-
-        [Header("Modifiers")]
-        [Range(0f,1f)]
-        public float obstacleChance;
-        [Range(0f,1f)]
-        public float landmarkChance;
-        [Range(0f,1f)]
-        public float decoChance;
-        private float lastDecoChance = 0f;
+        [Header("Singleton")]
+        public static FieldGenerator instance;
+        
+        // Events
+        public delegate void PlayfieldGenerated();
+        public static event PlayfieldGenerated playfieldGenerated;
 
         [Header("Playfield")]
         [SerializeField] private Playfield playfield;
@@ -43,14 +36,11 @@ namespace Course
         [SerializeField] private Material terrainMaterial;
         [SerializeField] private Material waterMaterial;
 
-        [Header("Camera")]
-        [SerializeField] private CinemachineTargetGroup ballTargetGroup;
-
         [Header("Game")]
         [SerializeField] private GameObject fieldTilePrefab;
         [SerializeField] private GameObject decoTilePrefab;
         [SerializeField] private GameObject holePrefab;
-        [SerializeField] private Transform endHole;
+        public Transform endHole;
         private List<GameObject> gameTiles = new List<GameObject>();
         // [SerializeField] private Ball ball;
         private Vector3 trackOffsetFromTerrain = new Vector3(0f, 0.03f, 0f); // The amount of extra Y offset used to keep the ball from hitting the terrain when colliding with the track normally
@@ -58,24 +48,21 @@ namespace Course
         [Header("Gizmos")]
         [SerializeField] private bool showDebug = false;
 
+        private void OnEnable()
+        {
+            
+        }
+        
+        private void Awake()
+        {
+            instance = this;
+        }
+
         void Start()
         {
             // CreateLevel();
         }
 
-        void Update()
-        {
-            if (lastLevel != level || lastSeed != seed || lastDecoChance != decoChance)
-            {
-                DestroyLevel();
-                CreateLevel();
-            }
-
-            lastLevel = level;
-            lastSeed = seed;
-            lastDecoChance = decoChance;
-        }
-        
         private void OnDrawGizmos()
         {
             if (showDebug)
@@ -167,15 +154,17 @@ namespace Course
         }
 
         // Generates and Instantiates the field
-        private void CreateLevel()
+        public void CreateLevel(int level, int seed)
         {
-            playfield = GeneratePlayfield();
+            DestroyLevel();
+            
+            playfield = GeneratePlayfield(level, seed);
             InstantiatePlayfield();
             
-            // Set the target of the ball camera
-            SetupCamera();
-
-            // ball.transform.position = playfield.spawn;
+            if (playfieldGenerated != null)
+            {
+                playfieldGenerated();
+            }
         }
         
         // Creates the objects for the game world
@@ -314,7 +303,7 @@ namespace Course
         }
 
         // Generate a playfield
-        private Playfield GeneratePlayfield()
+        private Playfield GeneratePlayfield(int level, int seed)
         {
             return new Playfield(seed, level);
         }
@@ -325,18 +314,48 @@ namespace Course
             return new Vector3(position.x, position.z * 0.5f, position.y);
         }
         
-        // Sets up the ball camera
-        private void SetupCamera()
+        // Returns the spawn point for the playfield
+        public Vector3 GetSpawnPoint()
         {
-            CinemachineTargetGroup.Target[] ballTargets = new CinemachineTargetGroup.Target[2];
-            ballTargets[0].target = Ball.instance.transform;
-            ballTargets[0].radius = 4f;
-            ballTargets[0].weight = 90f;
-            ballTargets[1].target = endHole;
-            ballTargets[1].radius = 1f;
-            ballTargets[1].weight = 10f;
+            return GridToWorld(playfield.start) + new Vector3(0f, 0.5f, 0f);
+        }
+        
+        // Returns the camera start point
+        public Vector3 GetPlayerCameraSpawnPoint()
+        {
+            return GridToWorld(playfield.playfieldCameras.playerCamStart);
+        }
+        
+        // Returns the Intro Playfield Cameras Data
+        public List<CinemachineSmoothPath> GetPlayfieldIntroCameras()
+        {
+            List<CinemachineSmoothPath> smoothPaths = playfield.playfieldCameras.GetIntroCamerasList();
+            
+            // Convert smooth paths to worldspace
+            for (int i = 0; i < smoothPaths.Count; i++)
+            {
+                CinemachineSmoothPath smoothPath = smoothPaths[i];
 
-            ballTargetGroup.m_Targets = ballTargets;
+                CinemachineSmoothPath.Waypoint[] modifiedWaypoints = new CinemachineSmoothPath.Waypoint[smoothPath.m_Waypoints.Length];
+                for (int j = 0; j < smoothPath.m_Waypoints.Length; j++)
+                {
+                    Vector3 position = smoothPath.m_Waypoints[j].position;
+                    position = GridToWorld(new Vector3Int((int)Mathf.Floor(position.x), (int)Mathf.Floor(position.y), (int)Mathf.Floor(position.z)));
+                    
+                    modifiedWaypoints[j].position = position;
+                    modifiedWaypoints[j].roll = 0;
+                }
+
+                smoothPath.m_Waypoints = modifiedWaypoints;
+            }
+
+            return smoothPaths;
+        }
+        
+        // Returns the center target
+        public Vector3 GetCenterTargetPosition()
+        {
+            return GridToWorld(playfield.trackCenter);
         }
     }
 }

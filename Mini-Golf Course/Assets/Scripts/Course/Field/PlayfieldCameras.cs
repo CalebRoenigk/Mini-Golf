@@ -26,5 +26,11 @@ namespace Course.Field
             this.fallToStartTrack = fallToStartTrack;
             this.playerCamStart = playerCamStart;
         }
+        
+        // Returns the intro camera data
+        public List<CinemachineSmoothPath> GetIntroCamerasList()
+        {
+            return new List<CinemachineSmoothPath>() { overheadOrbitTrack, truckPlayfieldTrack, fallToStartTrack };
+        }
     }
 }

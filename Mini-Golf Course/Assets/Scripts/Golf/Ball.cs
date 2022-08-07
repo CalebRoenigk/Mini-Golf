@@ -11,6 +11,10 @@ namespace Golf
         [Header("Singleton")]
         public static Ball instance;
         
+        // Events
+        public delegate void BallInHole();
+        public static event BallInHole ballInHole;
+        
         [Header("Runtime")]
         [SerializeField] private Rigidbody rigidbody;
         [SerializeField] private LineRenderer forceLine;
@@ -140,6 +144,10 @@ namespace Golf
             if (other.gameObject.tag == "Hole")
             {
                 isInHole = true;
+                if (ballInHole != null)
+                {
+                    ballInHole();
+                }
             }
         }
 

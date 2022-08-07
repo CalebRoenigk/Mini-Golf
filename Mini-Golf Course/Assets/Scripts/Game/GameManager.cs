@@ -1,6 +1,11 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Course;
+using Golf;
+using Cinemachine;
+using UnityEngine.Playables;
 
 namespace Game
 {
@@ -8,6 +13,23 @@ namespace Game
     {
         [Header("Game")]
         public GameState gameState;
+        public int level = 1;
+        public int seed;
+        [SerializeField] private bool overrideSeed;
+        [SerializeField] private int overrideSeedValue;
+
+        [Header("Camera")]
+        [SerializeField] private PlayableDirector cameraDirector;
+        [SerializeField] private CinemachineTargetGroup ballTargetGroup;
+        [SerializeField] private Transform playerCamera;
+        [SerializeField] private CinemachineVirtualCamera playerVirtualCamera;
+        [SerializeField] private CinemachineSmoothPath orbitCameraTrack;
+        [SerializeField] private CinemachineSmoothPath truckPlayfieldTrack;
+        [SerializeField] private CinemachineSmoothPath fallToStartTrack;
+        [SerializeField] private Transform centerTarget;
+
+        [Header("Ball")]
+        [SerializeField] private GameObject ballPrefab;
 
         // TODO: Add code here
 
@@ -16,5 +38,79 @@ namespace Game
         // Once playing, ask camera manager to set priority of follow cam to highest
         // On win, ask camera manager to do Win animation
         // On outro, ask field generator to make new course
+
+        private void OnEnable()
+        {
+            FieldGenerator.playfieldGenerated += SpawnBall;
+            Ball.ballInHole += WinLevel;
+        }
+        
+        private void Start()
+        {
+            // Get a new seed for the game
+            seed = UnityEngine.Random.Range(int.MinValue, Int32.MaxValue);
+            if (overrideSeed)
+            {
+                seed = overrideSeedValue;
+            }
+            
+            // Start the game
+            StartLevel(level);
+        }
+        
+        // Starts the level passed
+        private void StartLevel(int lvl)
+        {
+            FieldGenerator.instance.CreateLevel(lvl, seed);
+        }
+        
+        // Spawns the ball
+        private void SpawnBall()
+        {
+            Instantiate(ballPrefab, FieldGenerator.instance.GetSpawnPoint(), Quaternion.identity);
+            gameState = GameState.Playing;
+            
+            // Set up the cameras
+            SetupCameras();
+        }
+        
+        // Sets up the ball camera
+        private void SetupCameras()
+        {
+            // Set up basic player camera information
+            CinemachineTargetGroup.Target[] ballTargets = new CinemachineTargetGroup.Target[2];
+            ballTargets[0].target = Ball.instance.transform;
+            ballTargets[0].radius = 4f;
+            ballTargets[0].weight = 90f;
+            ballTargets[1].target = FieldGenerator.instance.endHole;
+            ballTargets[1].radius = 1f;
+            ballTargets[1].weight = 10f;
+        
+            ballTargetGroup.m_Targets = ballTargets;
+            
+            playerVirtualCamera.m_Follow = Ball.instance.transform;
+
+            playerCamera.position = FieldGenerator.instance.GetPlayerCameraSpawnPoint();
+            
+            // Get the intro data
+            List<CinemachineSmoothPath> introPaths = FieldGenerator.instance.GetPlayfieldIntroCameras();
+            
+            // Set up the orbit cam
+            orbitCameraTrack = introPaths[0];
+            truckPlayfieldTrack = introPaths[1];
+            fallToStartTrack = introPaths[2];
+            
+            // Set up the center target
+            centerTarget.position = FieldGenerator.instance.GetCenterTargetPosition();
+
+            // Play the intro
+            cameraDirector.Play();
+        }
+        
+        // Wins the level TODO: WIN LEVEL
+        private void WinLevel()
+        {
+            // DO SOME SHIT
+        }
     }
 }
