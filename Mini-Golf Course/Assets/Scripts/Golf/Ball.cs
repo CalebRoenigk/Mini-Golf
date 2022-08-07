@@ -200,9 +200,6 @@ namespace Golf
             // Set the color of the force line
             Color strengthColor = hittingStrengthColors.Evaluate(strength);
             forceLine.material.SetColor("_Tint", strengthColor);
-            
-            // Set the speed of the force line
-            forceLine.material.SetFloat("_Speed", strength * -2f);
         }
         
         // Clamps a point to a radius given a center
