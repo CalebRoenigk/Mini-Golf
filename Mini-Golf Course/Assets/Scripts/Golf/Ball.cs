@@ -191,6 +191,10 @@ namespace Golf
         private IEnumerator SpawnBallAtLastHit(float waitTime)
         {
             yield return new WaitForSeconds(waitTime);
+            // Set the rigidbody velocity to zero
+            rigidbody.velocity = Vector3.zero;
+            rigidbody.angularVelocity = Vector3.zero;
+
             // Return to last hit
             transform.position = lastHitPosition;
             transform.eulerAngles = lastHitRotation;
@@ -317,6 +321,7 @@ namespace Golf
         private void HitBall(Vector3 hitDirection, float hitStrength)
         {
             rigidbody.AddForce(hitDirection * hitStrength, ForceMode.Impulse);
+            rigidbody.AddTorque(Quaternion.AngleAxis(90, Vector3.up) * (hitDirection * (hitStrength/2f)), ForceMode.Impulse);
             isResting = false;
             isAiming = false;
             isTraveling = true;

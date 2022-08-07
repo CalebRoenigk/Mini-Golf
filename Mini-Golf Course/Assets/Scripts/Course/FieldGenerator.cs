@@ -296,7 +296,7 @@ namespace Course
                         mesh = tileModifier.mesh;
                     }
                 }
-                supportObject.SetTile(supportTile, mesh, supportMaterial);
+                supportObject.SetTile(supportTile, mesh, supportMaterial, true);
                 
                 supportObject.gameObject.tag = "Decoration";
                 supportObject.gameObject.name = "Support" + supportTile.position.ToString();

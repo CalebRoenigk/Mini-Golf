@@ -16,13 +16,17 @@ namespace Course
         [SerializeField] private MeshCollider meshCollider;
 
         // Set the tile up
-        public void SetTile(FieldTile tile, Mesh tileMesh, Material material)
+        public void SetTile(FieldTile tile, Mesh tileMesh, Material material, bool disableCollider = false)
         {
             fieldTile = tile;
             meshFilter.mesh = tileMesh;
             meshCollider.sharedMesh = tileMesh;
             renderer.material = material;
             transform.eulerAngles = new Vector3(-90f, fieldTile.rotation, 0f);
+            if (disableCollider)
+            {
+                Destroy (meshCollider);
+            }
         }
         
         // Set the tile up with a secondary material
