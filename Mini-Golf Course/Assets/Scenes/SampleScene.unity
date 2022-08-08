@@ -21736,8 +21736,7 @@ GameObject:
   m_Component:
   - component: {fileID: 349563738}
   - component: {fileID: 349563741}
-  - component: {fileID: 349563740}
-  - component: {fileID: 349563739}
+  - component: {fileID: 349563742}
   m_Layer: 0
   m_Name: cm
   m_TagString: Untagged
@@ -21760,7 +21759,7 @@ Transform:
   m_Father: {fileID: 1372606456}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &349563739
+--- !u!114 &349563741
 MonoBehaviour:
   m_ObjectHideFlags: 3
   m_CorrespondingSourceObject: {fileID: 0}
@@ -21769,26 +21768,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 349563737}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 418e42c7d0405cc48a7b83f63ea53bb3, type: 3}
+  m_Script: {fileID: 11500000, guid: ac0b09e7857660247b1477e93731de29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Path: {fileID: 1221214350}
-  m_PathPosition: 2.64
-  m_PositionUnits: 0
-  m_PathOffset: {x: 0, y: 0, z: 0}
-  m_XDamping: 0
-  m_YDamping: 0
-  m_ZDamping: 1
-  m_CameraUp: 0
-  m_PitchDamping: 0
-  m_YawDamping: 0
-  m_RollDamping: 0
-  m_AutoDolly:
-    m_Enabled: 0
-    m_PositionOffset: 0
-    m_SearchRadius: 2
-    m_SearchResolution: 5
---- !u!114 &349563740
+--- !u!114 &349563742
 MonoBehaviour:
   m_ObjectHideFlags: 3
   m_CorrespondingSourceObject: {fileID: 0}
@@ -21815,18 +21798,6 @@ MonoBehaviour:
   m_BiasX: 0
   m_BiasY: 0
   m_CenterOnActivate: 1
---- !u!114 &349563741
-MonoBehaviour:
-  m_ObjectHideFlags: 3
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 349563737}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ac0b09e7857660247b1477e93731de29, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &352080694
 GameObject:
   m_ObjectHideFlags: 0
@@ -54861,7 +54832,7 @@ MonoBehaviour:
   - m_Script
   m_LockStageInInspector: 
   m_StreamingVersion: 20170927
-  m_Priority: 10
+  m_Priority: 100
   m_StandbyUpdate: 2
   m_LookAt: {fileID: 1305718069}
   m_Follow: {fileID: 0}
@@ -54890,7 +54861,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 881160003}
-  m_LocalRotation: {x: -0.17179297, y: 0.69775444, z: 0.17832948, w: 0.6721789}
+  m_LocalRotation: {x: -0.17179297, y: 0.6977545, z: 0.1783295, w: 0.67217886}
   m_LocalPosition: {x: -3.534, y: -1.934, z: 0.132}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -56587,7 +56558,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1372606456}
-  - {fileID: 1221214349}
   m_Father: {fileID: 1291397375}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -73713,63 +73683,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1219114198}
   m_Mesh: {fileID: 5797273022398963634, guid: 08c4b049c9def4cd0acc0b80b25da959, type: 3}
---- !u!1 &1221214348
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1221214349}
-  - component: {fileID: 1221214350}
-  m_Layer: 0
-  m_Name: FallToStartTrack
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1221214349
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1221214348}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 911134261}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1221214350
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1221214348}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a200b19ca1a9685429ed7e043c28e904, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Resolution: 24
-  m_Appearance:
-    pathColor: {r: 0, g: 1, b: 0, a: 1}
-    inactivePathColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-    width: 0.2
-  m_Looped: 0
-  m_Waypoints:
-  - position: {x: 0, y: 0, z: 0}
-    roll: 0
-  - position: {x: 0, y: 0, z: 0}
-    roll: 0
-  - position: {x: 0, y: 0, z: 0}
-    roll: 0
 --- !u!1 &1225925603
 GameObject:
   m_ObjectHideFlags: 0
@@ -85250,7 +85163,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1372606455}
-  m_LocalRotation: {x: 0.090193704, y: 0.34179536, z: -0.032976016, w: 0.93485487}
+  m_LocalRotation: {x: 0.27250043, y: 0.606865, z: -0.23314807, w: 0.70929575}
   m_LocalPosition: {x: -11.821065, y: 10.785561, z: -1.8511705}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -85277,7 +85190,7 @@ MonoBehaviour:
   m_StreamingVersion: 20170927
   m_Priority: 10
   m_StandbyUpdate: 2
-  m_LookAt: {fileID: 1305718069}
+  m_LookAt: {fileID: 643317436}
   m_Follow: {fileID: 0}
   m_Lens:
     FieldOfView: 60
@@ -86035,6 +85948,9 @@ MonoBehaviour:
                         start: {x: 0, y: 0, z: 0}
                         end: {x: 0, y: 0, z: 0}
                         trackCenter: {x: 0, y: 0, z: 0}
+                        camStart: {x: 0, y: 0, z: 0}
+                        fallCamera: {x: 0, y: 0, z: 0}
+                        orbitRadius: 0
                       terrainScale: 0
                       terrainHeight: 0
                       terrainMargin: 0
@@ -86062,6 +85978,9 @@ MonoBehaviour:
                     support: []
                     riverPositions: []
                     trackCenter: {x: 0, y: 0, z: 0}
+                    camStart: {x: 0, y: 0, z: 0}
+                    fallCamera: {x: 0, y: 0, z: 0}
+                    orbitRadius: 0
                   terrainScale: 0
                   terrainHeight: 0
                   terrainMargin: 0
@@ -86089,6 +86008,9 @@ MonoBehaviour:
                 support: []
                 riverPositions: []
                 trackCenter: {x: 0, y: 0, z: 0}
+                camStart: {x: 0, y: 0, z: 0}
+                fallCamera: {x: 0, y: 0, z: 0}
+                orbitRadius: 0
               terrainScale: 0
               terrainHeight: 0
               terrainMargin: 0
@@ -86116,6 +86038,9 @@ MonoBehaviour:
             support: []
             riverPositions: []
             trackCenter: {x: 0, y: 0, z: 0}
+            camStart: {x: 0, y: 0, z: 0}
+            fallCamera: {x: 0, y: 0, z: 0}
+            orbitRadius: 0
           terrainScale: 0
           terrainHeight: 0
           terrainMargin: 0
@@ -86143,6 +86068,9 @@ MonoBehaviour:
         support: []
         riverPositions: []
         trackCenter: {x: 0, y: 0, z: 0}
+        camStart: {x: 0, y: 0, z: 0}
+        fallCamera: {x: 0, y: 0, z: 0}
+        orbitRadius: 0
       terrainScale: 0
       terrainHeight: 0
       terrainMargin: 0
@@ -86170,6 +86098,9 @@ MonoBehaviour:
     support: []
     riverPositions: []
     trackCenter: {x: 0, y: 0, z: 0}
+    camStart: {x: 0, y: 0, z: 0}
+    fallCamera: {x: 0, y: 0, z: 0}
+    orbitRadius: 0
   terrainParent: {fileID: 2113258124}
   trackParent: {fileID: 1664791535}
   terrainTileData:
@@ -94217,11 +94148,9 @@ MonoBehaviour:
   ballTargetGroup: {fileID: 1305718068}
   playerCamera: {fileID: 881160005}
   playerVirtualCamera: {fileID: 881160004}
-  orbitCameraTrack: {fileID: 2005323244}
-  truckPlayfieldTrack: {fileID: 1900510673}
-  fallToStartTrack: {fileID: 1221214350}
   centerTarget: {fileID: 643317436}
   endTarget: {fileID: 610802251}
+  fallCamera: {fileID: 1372606457}
   ballPrefab: {fileID: 7924738120391639004, guid: 641a6ea84e4b045eeb06cfc998ced22d,
     type: 3}
 --- !u!4 &1517185109
