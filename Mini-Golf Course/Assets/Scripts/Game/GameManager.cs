@@ -23,11 +23,9 @@ namespace Game
         [SerializeField] private CinemachineTargetGroup ballTargetGroup;
         [SerializeField] private Transform playerCamera;
         [SerializeField] private CinemachineVirtualCamera playerVirtualCamera;
-        [SerializeField] private CinemachineSmoothPath orbitCameraTrack;
-        [SerializeField] private CinemachineSmoothPath truckPlayfieldTrack;
-        [SerializeField] private CinemachineSmoothPath fallToStartTrack;
         [SerializeField] private Transform centerTarget;
         [SerializeField] private Transform endTarget;
+        [SerializeField] private CinemachineVirtualCamera fallCamera;
 
         [Header("Ball")]
         [SerializeField] private GameObject ballPrefab;
@@ -93,22 +91,16 @@ namespace Game
 
             playerCamera.position = FieldGenerator.instance.GetPlayerCameraSpawnPoint();
             
-            // Get the intro data
-            List<CinemachineSmoothPath> introPaths = FieldGenerator.instance.GetPlayfieldIntroCameras();
+            // Move overhead camera orbit group to center of level
+            // Offset the camera by the level smallest dim
+            // Local rotate the camera parent to be offset 45
+            // Start the forever spinning
             
-            // Set up the orbit cam
-            foreach (CinemachineSmoothPath introPath in introPaths)
-            {
-                introPath.InvalidateDistanceCache();
-            }
+            // Tracking Camera lerps between two points
             
-            orbitCameraTrack.m_Waypoints = introPaths[0].m_Waypoints;
-            orbitCameraTrack.InvalidateDistanceCache();
-            truckPlayfieldTrack.m_Waypoints = introPaths[1].m_Waypoints;
-            truckPlayfieldTrack.InvalidateDistanceCache();
-            fallToStartTrack.m_Waypoints = introPaths[2].m_Waypoints;
-            fallToStartTrack.InvalidateDistanceCache();
-            
+            // Put final camera above start a bit back
+            fallCamera.transform.position = FieldGenerator.instance.GetFallCameraPosition();
+
             // Set up the center target
             centerTarget.position = FieldGenerator.instance.GetCenterTargetPosition();
             
@@ -116,7 +108,7 @@ namespace Game
             endTarget.position = FieldGenerator.instance.endHole.position;
 
             // Play the intro
-            cameraDirector.Play();
+            // cameraDirector.Play();
         }
         
         // Wins the level TODO: WIN LEVEL

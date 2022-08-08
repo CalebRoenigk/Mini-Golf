@@ -4,9 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEditor;
 using Cinemachine;
-// using Dice;
 using Course.Field;
-using Golf;
 
 using Random = UnityEngine.Random;
 
@@ -323,34 +321,13 @@ namespace Course
         // Returns the camera start point
         public Vector3 GetPlayerCameraSpawnPoint()
         {
-            return GridToWorld(playfield.playfieldCameras.playerCamStart);
+            return GridToWorld(playfield.camStart);
         }
         
-        // Returns the Intro Playfield Cameras Data
-        // TODO: MOVE THIS TO HAPPEN INSIDE THE CALCULATIONS INSTEAD
-        public List<CinemachineSmoothPath> GetPlayfieldIntroCameras()
+        // Sets up the intro cameras
+        public Vector3 GetFallCameraPosition()
         {
-            List<CinemachineSmoothPath> smoothPaths = playfield.playfieldCameras.GetIntroCamerasList();
-            
-            // Convert smooth paths to worldspace
-            for (int i = 0; i < smoothPaths.Count; i++)
-            {
-                CinemachineSmoothPath smoothPath = smoothPaths[i];
-
-                CinemachineSmoothPath.Waypoint[] modifiedWaypoints = new CinemachineSmoothPath.Waypoint[smoothPath.m_Waypoints.Length];
-                for (int j = 0; j < smoothPath.m_Waypoints.Length; j++)
-                {
-                    Vector3 position = smoothPath.m_Waypoints[j].position;
-                    position = GridToWorld(new Vector3Int((int)Mathf.Floor(position.x), (int)Mathf.Floor(position.y), (int)Mathf.Floor(position.z)));
-                    
-                    modifiedWaypoints[j].position = position;
-                    modifiedWaypoints[j].roll = 0;
-                }
-
-                smoothPath.m_Waypoints = modifiedWaypoints;
-            }
-
-            return smoothPaths;
+            return GridToWorld(playfield.fallCamera);
         }
         
         // Returns the center target
@@ -358,5 +335,7 @@ namespace Course
         {
             return GridToWorld(playfield.trackCenter);
         }
+        
+        
     }
 }

@@ -14,9 +14,12 @@ namespace Golf
         // Events
         public delegate void BallInHole();
         public static event BallInHole ballInHole;
+        public delegate void BallLanded();
+        public static event BallLanded ballLanded;
         
         [Header("Runtime")]
         [SerializeField] private Rigidbody rigidbody;
+        [SerializeField] private MeshFilter meshFilter;
         [SerializeField] private LineRenderer forceLine;
         [SerializeField] private LineRenderer trajectoryLine;
         
@@ -27,6 +30,7 @@ namespace Golf
         public bool isInHole = false; // Is the ball in the hole
         public bool isSandy = false; // Is the ball in sand
         public bool isGrassy = false; // Is the ball in grass
+        public int faceCount = 6;
 
         [Header("Camera Data")]
         private Camera mainCamera;
@@ -54,6 +58,7 @@ namespace Golf
         {
             // Store the default components
             rigidbody = GetComponent<Rigidbody>();
+            meshFilter = GetComponent<MeshFilter>();
             forceLine = transform.GetChild(0).GetComponent<LineRenderer>();
             trajectoryLine = transform.GetChild(1).GetComponent<LineRenderer>();
             mainCamera = Camera.main;
@@ -131,6 +136,11 @@ namespace Golf
                     // Store last hit as this position
                     StoreLastHit();
                     isAiming = true;
+                    if (ballLanded != null)
+                    {
+                        ballLanded();
+                    }
+                    ApplyRoll(GetFaceUp());
                     break;
                 default:
                     Debug.Log("???");
@@ -339,6 +349,30 @@ namespace Golf
         private float RemapFloat(float value, float min1, float max1, float min2, float max2)
         {
             return min2 + (value-min1)*(max2-min2)/(max1-min1);
+        }
+        
+        // Returns which face is up
+        private int GetFaceUp()
+        {
+            // Get the ball normals
+            Vector3[] ballNormals = meshFilter.mesh.normals;
+
+            // Create a list of Normal Ys in world space
+            List<Vector3> normalsClean = ballNormals.ToList().Distinct().ToList();
+            List<float> normalYs = new List<float>();
+            foreach (Vector3 normal in normalsClean)
+            {
+                Vector3 worldNormal = transform.TransformDirection(normal) + transform.position;
+                normalYs.Add(worldNormal.y);
+            }
+
+            return (int)Mathf.Floor(normalYs.IndexOf(normalYs.Max()) / (faceCount - 1));
+        }
+        
+        // Applies the roll of the ball
+        private void ApplyRoll(int face)
+        {
+            Debug.Log(face);
         }
     }
 }

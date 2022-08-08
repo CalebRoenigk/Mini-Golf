@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using Cinemachine;
 using UnityEngine;
 using Course;
 using UnityEditor.SceneManagement;
@@ -33,8 +32,10 @@ namespace Course.Field
         
         // Playfield Secondary Information
         public List<Vector3Int> riverPositions = new List<Vector3Int>();
-        public PlayfieldCameras playfieldCameras;
         public Vector3Int trackCenter;
+        public Vector3Int camStart;
+        public Vector3Int fallCamera;
+        public int orbitRadius;
         
         public Playfield()
         {
@@ -95,9 +96,8 @@ namespace Course.Field
             // Generate the supports
             GenerateSupports();
             
-            // TODO: Generate Camera "Intro" to level. Probs wide circling shot, Dolly on part of track to hole, orbit down to start on ball
-            // Generate the Camera paths for the intro
-            GenerateCameraPaths();
+            // Calculates the camera data
+            CalculateCameras();
         }
 
         // Returns the field locations for the playfield
@@ -1922,111 +1922,131 @@ namespace Course.Field
             return Vector2.zero;
         }
         
-        // Generates the Camera paths
-        private void GenerateCameraPaths()
+        // Calculates all the camera data
+        private void CalculateCameras()
         {
-            // First Cam is wide circling shot
-            // Get the center of the course
-            Vector3 centerPoint = Vector3.Lerp(start, end, 0.5f);
-            trackCenter = new Vector3Int((int)Mathf.Floor(centerPoint.x), (int)Mathf.Floor(centerPoint.y), 0);
-            
-            // Determine the radius of the orbit
-            int orbitRadius = (int)Mathf.Floor(Mathf.Min(bounds.size.x - 10, bounds.size.y - 10) / 2f);
-            
-            // Create 4 points equi-distant from the center of the course
-            List<CinemachineSmoothPath.Waypoint> track1Waypoints = new List<CinemachineSmoothPath.Waypoint>();
-            List<Vector3Int> track1Directions = new List<Vector3Int>() { Vector3Int.down, Vector3Int.left, Vector3Int.up, Vector3Int.right };
-            foreach (Vector3Int direction in track1Directions)
-            {
-                // Create the waypoint
-                CinemachineSmoothPath.Waypoint waypoint = new CinemachineSmoothPath.Waypoint();
-                waypoint.position = direction * orbitRadius;
-                waypoint.roll = 0f;
-                
-                // Add the waypoint to the track
-                track1Waypoints.Add(waypoint);
-            }
-            
-            // Create the first smooth path
-            CinemachineSmoothPath overheadOrbitTrack = new CinemachineSmoothPath();
-            overheadOrbitTrack.m_Resolution = 24;
-            overheadOrbitTrack.m_Looped = true;
-            overheadOrbitTrack.m_Waypoints = track1Waypoints.ToArray();
-            // TODO: HAVE CAMERA MANAGER CREATE A TARGET FOR THE CAMERA 1 TO LOOK AT
-            
-            // Second Cam is Tracking Dolly down course to hole
-            // Get a tile halfway down the track
-            int halfTrackLength = (int)Mathf.Round(track.Count / 2f);
-            
-            // Create the first waypoint 4+ the max height of the track
-            Vector3Int track2Point1 = track[halfTrackLength].position;
-            track2Point1.z = 4;
-            CinemachineSmoothPath.Waypoint track2Waypoint1 = new CinemachineSmoothPath.Waypoint();
-            track2Waypoint1.position =track2Point1;
-            track2Waypoint1.roll = 0f;
-
-            // A second track point will be added at the hole +1 above the hole
-            Vector3Int track2Point2 = end;
-            track2Point2.z = 1;
-            CinemachineSmoothPath.Waypoint track2Waypoint2 = new CinemachineSmoothPath.Waypoint();
-            track2Waypoint2.position =track2Point2;
-            track2Waypoint2.roll = 0f;
-            
-            // Combine the two waypoints
-            List<CinemachineSmoothPath.Waypoint> track2Waypoints = new List<CinemachineSmoothPath.Waypoint>() { track2Waypoint1, track2Waypoint2 };
-            
-            // Create the second track
-            CinemachineSmoothPath truckPlayfieldTrack = new CinemachineSmoothPath();
-            truckPlayfieldTrack.m_Resolution = 1;
-            truckPlayfieldTrack.m_Looped = false;
-            truckPlayfieldTrack.m_Waypoints = track2Waypoints.ToArray();
-            // TODO: THIS CAMERA WILL TARGET THE HOLE
-            
-            // Third Cam sinks down from the sky to end up where the player cam starts
-            // Get a vector inverse from start to hole
-            Vector3 awayFromHole = ((Vector3)(start - end)).normalized;
-            
-            // Use this vector to go back a few tiles and then go upwards by 6
-            float track3StartDistance = 6f;
-            float track3StartHeight = 6f;
-            awayFromHole.z = start.z;
-            Vector3 birdsEyePositionFloat = awayFromHole * track3StartDistance;
-            birdsEyePositionFloat.z += track3StartHeight;
-            Vector3Int birdsEyePosition = new Vector3Int((int)Mathf.Round(birdsEyePositionFloat.x), (int)Mathf.Round(birdsEyePositionFloat.y), (int)Mathf.Round(birdsEyePositionFloat.z));
-            CinemachineSmoothPath.Waypoint track3Waypoint1 = new CinemachineSmoothPath.Waypoint();
-            track3Waypoint1.position =birdsEyePosition;
-            track3Waypoint1.roll = 0f;
-            
-            // At 1/3rd the way down to the start, make another point and move halfway back towards the hole on the x and z but not on the Y
-            Vector3 sinkingPoint = birdsEyePosition;
-            sinkingPoint.z -= track3StartHeight / 3f;
-            sinkingPoint += -awayFromHole * (track3StartDistance / 2f);
-            CinemachineSmoothPath.Waypoint track3Waypoint2 = new CinemachineSmoothPath.Waypoint();
-            track3Waypoint2.position = sinkingPoint;
-            track3Waypoint2.roll = 0f;
-            
-            // A 3rd point will be at where the camera will start for the ball
             // Determine the direction of the player cam
             Vector3Int camDirection = track[0].position - track[1].position;
             camDirection.z = 0;
             Vector3Int playerCamStart = start + camDirection;
             playerCamStart.z += 1;
-            CinemachineSmoothPath.Waypoint track3Waypoint3 = new CinemachineSmoothPath.Waypoint();
-            track3Waypoint3.position = playerCamStart;
-            track3Waypoint3.roll = 0f;
             
-            // Combine the three waypoints
-            List<CinemachineSmoothPath.Waypoint> track3Waypoints = new List<CinemachineSmoothPath.Waypoint>() { track3Waypoint1, track3Waypoint2, track3Waypoint3 };
+            // Determine the fall cam position
+            fallCamera = camDirection * 2;
+            fallCamera.z = 3;
             
-            // Create the third track
-            CinemachineSmoothPath fallToStartTrack = new CinemachineSmoothPath();
-            fallToStartTrack.m_Resolution = 24;
-            fallToStartTrack.m_Looped = false;
-            fallToStartTrack.m_Waypoints = track3Waypoints.ToArray();
-            // TODO: Interpolate the weight on the ball in the target mix group from 0 to 90
-
-            // Store the camera data in the playfield
-            playfieldCameras = new PlayfieldCameras(overheadOrbitTrack, truckPlayfieldTrack, fallToStartTrack, playerCamStart);
+            // Get the center of the course
+            Vector3 centerPoint = Vector3.Lerp(start, end, 0.5f);
+            trackCenter = new Vector3Int((int)Mathf.Floor(centerPoint.x), (int)Mathf.Floor(centerPoint.y), 0);
+            
+            // Get the orbit radius
+            orbitRadius = (int)Mathf.Floor(Mathf.Min(bounds.size.x - 10, bounds.size.y - 10) / 2f);
         }
+        
+        // // Generates the Camera paths
+        // private void GenerateCameraPaths()
+        // {
+        //     // First Cam is wide circling shot
+        //     // Get the center of the course
+        //     Vector3 centerPoint = Vector3.Lerp(start, end, 0.5f);
+        //     trackCenter = new Vector3Int((int)Mathf.Floor(centerPoint.x), (int)Mathf.Floor(centerPoint.y), 0);
+        //     
+        //     // Determine the radius of the orbit
+        //     int orbitRadius = (int)Mathf.Floor(Mathf.Min(bounds.size.x - 10, bounds.size.y - 10) / 2f);
+        //     
+        //     // Create 4 points equi-distant from the center of the course
+        //     List<CinemachineSmoothPath.Waypoint> track1Waypoints = new List<CinemachineSmoothPath.Waypoint>();
+        //     List<Vector3Int> track1Directions = new List<Vector3Int>() { Vector3Int.down, Vector3Int.left, Vector3Int.up, Vector3Int.right };
+        //     foreach (Vector3Int direction in track1Directions)
+        //     {
+        //         // Create the waypoint
+        //         CinemachineSmoothPath.Waypoint waypoint = new CinemachineSmoothPath.Waypoint();
+        //         waypoint.position = direction * orbitRadius;
+        //         waypoint.roll = 0f;
+        //         
+        //         // Add the waypoint to the track
+        //         track1Waypoints.Add(waypoint);
+        //     }
+        //     
+        //     // Create the first smooth path
+        //     CinemachineSmoothPath overheadOrbitTrack = new CinemachineSmoothPath();
+        //     overheadOrbitTrack.m_Resolution = 1;
+        //     overheadOrbitTrack.m_Looped = true;
+        //     overheadOrbitTrack.m_Waypoints = track1Waypoints.ToArray();
+        //
+        //     // Second Cam is Tracking Dolly down course to hole
+        //     // Get a tile halfway down the track
+        //     int halfTrackLength = (int)Mathf.Round(track.Count / 2f);
+        //     
+        //     // Create the first waypoint 4+ the max height of the track
+        //     Vector3Int track2Point1 = track[halfTrackLength].position;
+        //     track2Point1.z = 4;
+        //     CinemachineSmoothPath.Waypoint track2Waypoint1 = new CinemachineSmoothPath.Waypoint();
+        //     track2Waypoint1.position =track2Point1;
+        //     track2Waypoint1.roll = 0f;
+        //
+        //     // A second track point will be added at the hole +1 above the hole
+        //     Vector3Int track2Point2 = end;
+        //     track2Point2.z = 1;
+        //     CinemachineSmoothPath.Waypoint track2Waypoint2 = new CinemachineSmoothPath.Waypoint();
+        //     track2Waypoint2.position =track2Point2;
+        //     track2Waypoint2.roll = 0f;
+        //     
+        //     // Combine the two waypoints
+        //     List<CinemachineSmoothPath.Waypoint> track2Waypoints = new List<CinemachineSmoothPath.Waypoint>() { track2Waypoint1, track2Waypoint2 };
+        //     
+        //     // Create the second track
+        //     CinemachineSmoothPath truckPlayfieldTrack = new CinemachineSmoothPath();
+        //     truckPlayfieldTrack.m_Resolution = 1;
+        //     truckPlayfieldTrack.m_Looped = false;
+        //     truckPlayfieldTrack.m_Waypoints = track2Waypoints.ToArray();
+        //     // TODO: THIS CAMERA WILL TARGET THE HOLE
+        //     
+        //     // Third Cam sinks down from the sky to end up where the player cam starts
+        //     // Get a vector inverse from start to hole
+        //     Vector3 awayFromHole = ((Vector3)(start - end)).normalized;
+        //     
+        //     // Use this vector to go back a few tiles and then go upwards by 6
+        //     float track3StartDistance = 6f;
+        //     float track3StartHeight = 6f;
+        //     awayFromHole.z = start.z;
+        //     Vector3 birdsEyePositionFloat = awayFromHole * track3StartDistance;
+        //     birdsEyePositionFloat.z += track3StartHeight;
+        //     Vector3Int birdsEyePosition = new Vector3Int((int)Mathf.Round(birdsEyePositionFloat.x), (int)Mathf.Round(birdsEyePositionFloat.y), (int)Mathf.Round(birdsEyePositionFloat.z));
+        //     CinemachineSmoothPath.Waypoint track3Waypoint1 = new CinemachineSmoothPath.Waypoint();
+        //     track3Waypoint1.position =birdsEyePosition;
+        //     track3Waypoint1.roll = 0f;
+        //     
+        //     // At 1/3rd the way down to the start, make another point and move halfway back towards the hole on the x and z but not on the Y
+        //     Vector3 sinkingPoint = birdsEyePosition;
+        //     sinkingPoint.z -= track3StartHeight / 3f;
+        //     sinkingPoint += -awayFromHole * (track3StartDistance / 2f);
+        //     CinemachineSmoothPath.Waypoint track3Waypoint2 = new CinemachineSmoothPath.Waypoint();
+        //     track3Waypoint2.position = sinkingPoint;
+        //     track3Waypoint2.roll = 0f;
+        //     
+        //     // A 3rd point will be at where the camera will start for the ball
+        //     // Determine the direction of the player cam
+        //     Vector3Int camDirection = track[0].position - track[1].position;
+        //     camDirection.z = 0;
+        //     Vector3Int playerCamStart = start + camDirection;
+        //     playerCamStart.z += 1;
+        //     CinemachineSmoothPath.Waypoint track3Waypoint3 = new CinemachineSmoothPath.Waypoint();
+        //     track3Waypoint3.position = playerCamStart;
+        //     track3Waypoint3.roll = 0f;
+        //     
+        //     // Combine the three waypoints
+        //     List<CinemachineSmoothPath.Waypoint> track3Waypoints = new List<CinemachineSmoothPath.Waypoint>() { track3Waypoint1, track3Waypoint2, track3Waypoint3 };
+        //     
+        //     // Create the third track
+        //     CinemachineSmoothPath fallToStartTrack = new CinemachineSmoothPath();
+        //     fallToStartTrack.m_Resolution = 24;
+        //     fallToStartTrack.m_Looped = false;
+        //     fallToStartTrack.m_Waypoints = track3Waypoints.ToArray();
+        //     // TODO: Interpolate the weight on the ball in the target mix group from 0 to 90
+        //
+        //     // Store the camera data in the playfield
+        //     playfieldCameras = new PlayfieldCameras(overheadOrbitTrack, truckPlayfieldTrack, fallToStartTrack, playerCamStart);
+        // }
     }
 }
