@@ -348,7 +348,6 @@ namespace Golf
             if (isSandy || isGrassy)
             {
                 hitStrength *= 0.6f;
-                
             }
             
             rigidbody.AddForce(hitDirection * hitStrength, ForceMode.Impulse);
