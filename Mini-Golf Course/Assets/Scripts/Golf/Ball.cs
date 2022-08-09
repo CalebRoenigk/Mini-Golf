@@ -30,7 +30,7 @@ namespace Golf
         public bool isInHole = false; // Is the ball in the hole
         public bool isSandy = false; // Is the ball in sand
         public bool isGrassy = false; // Is the ball in grass
-        public int faceCount = 6;
+        public bool canRoll = true; // Can the ball be rolled
 
         [Header("Camera Data")]
         private Camera mainCamera;
@@ -107,6 +107,14 @@ namespace Golf
         
         private void FixedUpdate()
         {
+            if (!isResting && rigidbody.IsSleeping())
+            {
+                if (canRoll)
+                {
+                    ApplyRoll(GetFaceUp()); 
+                }
+            }
+            
             isResting = rigidbody.IsSleeping();
         }
 
@@ -140,7 +148,6 @@ namespace Golf
                     {
                         ballLanded();
                     }
-                    ApplyRoll(GetFaceUp());
                     break;
                 default:
                     Debug.Log("???");
@@ -338,11 +345,18 @@ namespace Golf
         // Hit the ball
         private void HitBall(Vector3 hitDirection, float hitStrength)
         {
+            if (isSandy || isGrassy)
+            {
+                hitStrength *= 0.6f;
+                
+            }
+            
             rigidbody.AddForce(hitDirection * hitStrength, ForceMode.Impulse);
             rigidbody.AddTorque(Quaternion.AngleAxis(90, Vector3.up) * (hitDirection * (hitStrength/2f)), ForceMode.Impulse);
             isResting = false;
             isAiming = false;
             isTraveling = true;
+            canRoll = true;
         }
         
         // Remaps a float
@@ -366,12 +380,13 @@ namespace Golf
                 normalYs.Add(worldNormal.y);
             }
 
-            return (int)Mathf.Floor(normalYs.IndexOf(normalYs.Max()) / (faceCount - 1));
+            return normalYs.IndexOf(normalYs.Max());
         }
         
         // Applies the roll of the ball
         private void ApplyRoll(int face)
         {
+            canRoll = false;
             Debug.Log(face);
         }
     }
